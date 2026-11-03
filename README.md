@@ -94,7 +94,7 @@ The command emits one JSON object. The top-level status is `PASS` only when ever
 - Up to 32 fields per run; fields are compared independently.
 - Exact string equality; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
 - No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
-- Key matching uses sorted indexes with O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory; benchmark representative exports before production use.
+- For each selected field, key matching uses sorted indexes with O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory; benchmark representative exports before production use.
 - No cryptographic evidence manifest or tamper-evident audit trail.
 - No claim that a PASS proves overall migration correctness.
 - Not certified for regulated or production-critical validation.
