@@ -10,6 +10,7 @@ typedef struct { char **headers; size_t header_count; VerityRow *rows; size_t ro
 typedef struct { char *key; char *left_value; char *right_value; size_t left_row; size_t right_row; VerityStatus status; } VerityFinding;
 typedef struct { VerityFinding *findings; size_t finding_count; size_t matched_count; size_t left_only_count; size_t right_only_count; } VerityReport;
 int verity_csv_read(const char *path, VerityTable *out, char *error, size_t error_size);
+int verity_jsonl_read(const char *path, VerityTable *out, char *error, size_t error_size);
 void verity_table_free(VerityTable *table);
 int verity_compare(const VerityTable *left, const VerityTable *right, const char *key_column, const char *value_column, VerityReport *out, char *error, size_t error_size);
 void verity_report_free(VerityReport *report);
