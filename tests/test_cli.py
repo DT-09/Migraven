@@ -60,3 +60,30 @@ with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
     assert "column not found" in missing.stderr
 
 print("all CLI tests passed")
+
+    jsonl_left = root / "source.jsonl"
+    jsonl_right = root / "target.jsonl"
+    jsonl_left.write_text(
+        '{"id":"A","status":"ACTIVE","region":"EU"}\\n'
+        '{"id":"B","status":"PENDING","region":"US"}\\n',
+        encoding="utf-8",
+    )
+    jsonl_right.write_text(
+        '{"id":"A","status":"ACTIVE","region":"EU"}\\n'
+        '{"id":"B","status":"ACTIVE","region":"US"}\\n',
+        encoding="utf-8",
+    )
+    jsonl_result = run(
+        "compare", "--format", "jsonl", "--key", "id",
+        "--field", "status", "--field", "region",
+        str(jsonl_left), str(jsonl_right),
+    )
+    assert jsonl_result.returncode == 0, jsonl_result.stderr
+    jsonl_report = json.loads(jsonl_result.stdout)
+    assert jsonl_report["format"] == "jsonl"
+    assert jsonl_report["status"] == "REVIEW"
+    assert jsonl_report["checks"][0]["summary"]["exceptions"] == 1
+
+    inspected = run("inspect", "--format", "jsonl", str(jsonl_left))
+    assert inspected.returncode == 0, inspected.stderr
+    assert json.loads(inspected.stdout)["row_count"] == 2
