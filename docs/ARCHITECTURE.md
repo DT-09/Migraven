@@ -13,6 +13,7 @@ verity_core is a dependency-free C17 static library. The CLI consumes the public
 - compare.c: unique-key validation, sorted key indexes, exact field comparison and source-row findings.
 - util.c: status labels and JSON string serialization.
 - main.c: CLI argument parsing and machine-readable report output.
+- tools/render_report.py: local, self-contained HTML evidence report rendering with escaped dynamic values.
 
 ## Data model
 
@@ -30,7 +31,7 @@ The caller selects one unique key column and one or more fields. Keys must be no
 - FAIL: a paired key has unequal values.
 - INDETERMINATE: a key exists on only one side; the engine does not infer why.
 
-For each field comparison, sorted key indexes provide O((n + m) log(n + m)) index preparation and O(n + m) auxiliary memory. Multiple fields are evaluated independently; benchmark representative datasets before making throughput claims. Output findings retain original input row numbers. Benchmark representative datasets before making throughput claims.
+For each field comparison, sorted key indexes provide O((n + m) log(n + m)) index preparation and O(n + m) auxiliary memory. Multiple fields are evaluated independently. Output findings retain original input row numbers. Benchmark representative datasets before making throughput claims.
 
 ## Trust and evidence boundary
 
