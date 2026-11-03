@@ -18,7 +18,7 @@ if(VERITY_BUILD_TESTS)
   add_executable(verity_tests tests/test_core.c)
   target_link_libraries(verity_tests PRIVATE verity_core)
   add_test(NAME verity_core_tests COMMAND verity_tests)
-  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  find_package(Python3 3.10 COMPONENTS Interpreter REQUIRED)
   add_test(NAME verity_cli_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_cli.py $<TARGET_FILE:verity>)
   add_test(NAME verity_report_tests
