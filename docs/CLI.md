@@ -17,7 +17,7 @@ For JSONL, pass `--format jsonl`:
 ```bash
 verity compare --format jsonl --key customer_id \
   --field account_status \
-  --field region   source.jsonl target.jsonl
+  --field region \\\n  source.jsonl target.jsonl
 ```
 
 JSONL input consists of one object per non-empty line. Each object must contain the same property names in the same order. String, number, boolean and null scalar values are supported. Nested objects, arrays and schema changes are rejected. CSV remains the default input format.
