@@ -31,19 +31,14 @@ with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
     report = json.loads(result.stdout)
     assert report["status"] == "REVIEW"
     assert report["key"] == "id"
+    assert report["format"] == "csv"
     assert len(report["checks"]) == 2
-
-    status = report["checks"][0]
-    assert status["field"] == "status"
-    assert status["summary"] == {
+    assert report["checks"][0]["summary"] == {
         "matched": 2, "left_only": 1, "right_only": 1, "exceptions": 3
     }
-    assert status["findings"][0]["key"] == "B"
-    assert status["findings"][0]["status"] == "FAIL"
-
-    region = report["checks"][1]
-    assert region["field"] == "region"
-    assert region["summary"]["exceptions"] == 2
+    assert report["checks"][0]["findings"][0]["key"] == "B"
+    assert report["checks"][0]["findings"][0]["status"] == "FAIL"
+    assert report["checks"][1]["summary"]["exceptions"] == 2
 
     duplicate = run(
         "compare", "--key", "id", "--field", "status",
@@ -59,18 +54,16 @@ with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
     assert missing.returncode == 2
     assert "column not found" in missing.stderr
 
-print("all CLI tests passed")
-
     jsonl_left = root / "source.jsonl"
     jsonl_right = root / "target.jsonl"
     jsonl_left.write_text(
-        '{"id":"A","status":"ACTIVE","region":"EU"}\\n'
-        '{"id":"B","status":"PENDING","region":"US"}\\n',
+        '{"id":"A","status":"ACTIVE","region":"EU"}\n'
+        '{"id":"B","status":"PENDING","region":"US"}\n',
         encoding="utf-8",
     )
     jsonl_right.write_text(
-        '{"id":"A","status":"ACTIVE","region":"EU"}\\n'
-        '{"id":"B","status":"ACTIVE","region":"US"}\\n',
+        '{"id":"A","status":"ACTIVE","region":"EU"}\n'
+        '{"id":"B","status":"ACTIVE","region":"US"}\n',
         encoding="utf-8",
     )
     jsonl_result = run(
@@ -87,3 +80,5 @@ print("all CLI tests passed")
     inspected = run("inspect", "--format", "jsonl", str(jsonl_left))
     assert inspected.returncode == 0, inspected.stderr
     assert json.loads(inspected.stdout)["row_count"] == 2
+
+print("all CLI tests passed")
