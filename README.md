@@ -51,7 +51,7 @@ For JSONL, select the input format explicitly with `--format jsonl` (the default
   examples/migration_source.jsonl examples/migration_target.jsonl
 ```
 
-JSONL records must be objects with the same property names in the same order. String, number, boolean and null values are accepted; nested arrays and objects are not.
+JSONL records must be objects with the same property names; property order may differ. String, number, boolean and null values are accepted; nested arrays and objects are not.
 
 Check multiple fields in one pass by repeating `--field`:
 
