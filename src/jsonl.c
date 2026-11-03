@@ -367,12 +367,22 @@ int verity_jsonl_read(const char *path, VerityTable *out,
                 goto row_error;
             }
             for (i = 0; i < count; ++i) {
-                if (strcmp(keys[i], out->headers[i]) != 0) {
+                size_t j;
+                for (j = i; j < count; ++j)
+                    if (strcmp(keys[j], out->headers[i]) == 0) break;
+                if (j == count) {
                     if (error && error_size)
                         (void)snprintf(error, error_size,
-                                       "JSONL property order or schema changed at line %zu",
-                                       line_number);
+                                       "JSONL schema changed at line %zu", line_number);
                     goto row_error;
+                }
+                if (j != i) {
+                    char *key_swap = keys[i];
+                    char *value_swap = values[i];
+                    keys[i] = keys[j];
+                    values[i] = values[j];
+                    keys[j] = key_swap;
+                    values[j] = value_swap;
                 }
             }
         }
