@@ -23,6 +23,8 @@ if(VERITY_BUILD_TESTS)
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_cli.py $<TARGET_FILE:verity>)
   add_test(NAME verity_report_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_report.py)
+  add_test(NAME verity_evidence_tests
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_evidence.py)
 endif()
 install(TARGETS verity verity_core)
 install(DIRECTORY include/ DESTINATION include)
