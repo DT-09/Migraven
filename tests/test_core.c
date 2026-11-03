@@ -12,7 +12,7 @@ static void write_file(const char *path, const char *content) {
 
 int main(void) {
     VerityTable a = {0}, b = {0}, dup = {0}, dup_right = {0};
-    VerityTable bad_header = {0}, empty_key = {0};
+    VerityTable bad_header = {0}, empty_key = {0}, no_rows = {0};
     VerityReport report = {0};
     char error[256];
 
@@ -22,6 +22,7 @@ int main(void) {
     write_file("test_duplicate_right.csv", "id,amount\nA,1\nA,2\n");
     write_file("test_bad_header.csv", "id,id\nA,A\n");
     write_file("test_empty_key.csv", "id,amount\n,10\n");
+    write_file("test_no_rows.csv", "id,amount\n");
 
     assert(verity_csv_read("test_left.csv", &a, error, sizeof(error)));
     assert(a.row_count == 2);
@@ -50,6 +51,10 @@ int main(void) {
     assert(!verity_compare(&empty_key, &b, "id", "amount", &report, error, sizeof(error)));
     assert(strstr(error, "Empty key in left") != NULL);
 
+    assert(verity_csv_read("test_no_rows.csv", &no_rows, error, sizeof(error)));
+    assert(!verity_compare(&no_rows, &no_rows, "id", "amount", &report, error, sizeof(error)));
+    assert(strstr(error, "no data rows") != NULL);
+
     verity_report_free(&report);
     verity_table_free(&a);
     verity_table_free(&b);
@@ -57,12 +62,14 @@ int main(void) {
     verity_table_free(&dup_right);
     verity_table_free(&bad_header);
     verity_table_free(&empty_key);
+    verity_table_free(&no_rows);
     remove("test_left.csv");
     remove("test_right.csv");
     remove("test_duplicate.csv");
     remove("test_duplicate_right.csv");
     remove("test_bad_header.csv");
     remove("test_empty_key.csv");
+    remove("test_no_rows.csv");
     puts("all core tests passed");
     return 0;
 }
