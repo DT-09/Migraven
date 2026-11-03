@@ -1,29 +1,35 @@
 # VERITY
 
-**Independent migration verification for CSV and JSONL exports.**
+**Migration export verification with source-row evidence.**
 
-Verity is a local-first C17 utility for checking agreed source and target CSV or JSONL exports before migration sign-off. It matches records by a unique key, checks several selected fields in one run, and returns machine-readable findings with source-row references.
+Verity is a local-first C17 utility for implementation consultancies and migration teams. It compares agreed source and target CSV or flat-object JSONL exports by a unique key, checks selected fields using exact string equality, and produces reviewable findings with source-row references.
 
-> Status: early MVP. Not production-certified. No performance, security-certification, or customer claims are made.
+> **Product status:** early evaluation product. It is not production-certified, independently security-assessed, or a migration-correctness guarantee. No customer, savings, or performance claims are made.
 
-## First use case
+## Who it is for
 
-A software implementation consultancy has exported records from a legacy system and the migrated system. Before sign-off, the migration lead needs to check whether agreed critical values survived the move.
+ERP/CRM implementation consultancies and migration delivery teams that need a repeatable check on selected records before internal or client sign-off.
 
-Verity provides a narrow, reproducible check:
-- Read source and target CSV or JSONL files locally.
-- Validate headers and row widths.
-- Require a non-empty, unique comparison key in each file.
-- Compare up to 32 selected fields in one invocation using exact string equality.
-- Report mismatched values and keys present on only one side for each field.
-- Preserve source row references in JSON output.
-- Read each input file once per invocation; each field is evaluated independently.
+**The job:** compare two agreed exports and give the migration lead a traceable exception list to review.
 
-See [first-market positioning](docs/first-market.md) and the [paid pilot scope](docs/paid-pilot.md).
+Verity is deliberately narrower than a full migration-testing platform. It does not replace transformation testing, schema mapping, integration testing, or business acceptance.
 
-## Quick start
+## What it does
 
-Requirements: CMake 3.16+, a C17 compiler, and Python 3 when tests are enabled.
+- Reads CSV and flat-object JSONL locally.
+- Validates headers and row widths.
+- Requires a non-empty, unique comparison key in each input.
+- Compares up to 32 selected fields per run using exact string equality.
+- Reports unequal values and keys present on only one side.
+- Preserves physical source-row references in JSON findings.
+- Produces a self-contained HTML report for human review.
+- Creates a SHA-256 manifest binding the two input files and generated JSON report.
+
+A finding is an observation, not proof of a migration defect. A PASS applies only to the selected key and fields.
+
+## Build and test
+
+Requirements: CMake 3.16+, a C17 compiler, and Python 3.10+.
 
 ```bash
 cmake -S . -B build -DVERITY_BUILD_TESTS=ON
@@ -31,7 +37,29 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ```
 
-## Demonstration
+## Run the complete demonstration
+
+```bash
+python tools/demo.py
+```
+
+The script uses bundled synthetic records and writes `verity-demo-output/` with:
+
+| File | Purpose |
+|---|---|
+| `comparison.json` | Machine-readable field results |
+| `review.html` | Self-contained report for a human reviewer |
+| `evidence.json` | SHA-256 manifest for the inputs and JSON report |
+
+It then verifies the manifest and prints the output paths. No customer data is used.
+
+If the executable is outside the default build location, pass it explicitly:
+
+```bash
+python tools/demo.py --binary build/Release/verity.exe
+```
+
+## Direct comparison
 
 ```bash
 ./build/verity inspect examples/migration_source.csv
@@ -43,7 +71,7 @@ ctest --test-dir build --output-on-failure
   examples/migration_target.csv
 ```
 
-For JSONL, select the input format explicitly with `--format jsonl` (the default is CSV):
+For JSONL, specify the format:
 
 ```bash
 ./build/verity compare --format jsonl \
@@ -51,29 +79,9 @@ For JSONL, select the input format explicitly with `--format jsonl` (the default
   examples/migration_source.jsonl examples/migration_target.jsonl
 ```
 
-JSONL records must be objects with the same property names; property order may differ. String, number, boolean and null values are accepted; nested arrays and objects are not.
+JSONL records must be flat objects with matching property names; property order may differ. String, number, boolean and null values are accepted. Nested arrays and objects are not supported.
 
-Check multiple fields in one pass by repeating `--field`:
-
-```bash
-./build/verity compare \
-  --key record_id \
-  --field account_status \
-  --field region \
-  --field credit_limit \
-  source.csv target.csv
-```
-
-The synthetic example intentionally contains:
-- one matched key with a changed status;
-- one key present only in the source;
-- one key present only in the target.
-
-Expected report summary for the supplied example: 4 matched keys, 1 source-only key, 1 target-only key, 3 findings. A finding is an observation for human review, not proof of a migration defect.
-
-## Human-readable evidence report
-
-Save the comparison JSON, then render a self-contained HTML report for review:
+To render a saved JSON result as HTML:
 
 ```bash
 ./build/verity compare --key record_id --field account_status \
@@ -82,51 +90,56 @@ Save the comparison JSON, then render a self-contained HTML report for review:
 python tools/render_report.py result.json --output review.html
 ```
 
-The HTML report is generated locally. It includes per-field counts, findings, source-row references and a clear human-review disclaimer. It uses no external scripts, fonts or network services.
-
-## Cryptographic evidence manifest
-
-After creating the JSON report, bind the two input files and report to a versioned SHA-256 manifest:
+To create and verify a SHA-256 evidence manifest:
 
 ```bash
-python tools/evidence.py create \\
-  --left examples/migration_source.csv \\
-  --right examples/migration_target.csv \\
-  --report result.json \\
-  --key record_id --field account_status \\
-  --format csv --tool-version 0.1.0 \\
+python tools/evidence.py create \
+  --left examples/migration_source.csv \
+  --right examples/migration_target.csv \
+  --report result.json \
+  --key record_id --field account_status \
+  --format csv --tool-version 0.1.0 \
   --output evidence.json
 
 python tools/evidence.py verify evidence.json
 ```
 
-The verifier re-hashes both inputs and the report and checks their recorded byte sizes. It returns `VERIFIED` only when all three match. A changed or missing file produces a non-zero exit code. The manifest records the format, key, fields, comparison semantics and tool version.
-
-**Trust boundary:** the manifest is unsigned. It detects changes relative to the manifest but does not prove who created the manifest or prevent an attacker from replacing both the files and manifest. Preserve the manifest in a trusted, access-controlled location or add a trusted digital signature before using it as formal audit evidence.
+**Manifest trust boundary:** the manifest is unsigned. It detects changes relative to the recorded hashes and sizes, but does not prove who created it or prevent replacement of both the manifest and files. It is an integrity aid, not a digital signature or audit certification.
 
 ## Output contract
 
-The command emits one JSON object. The top-level status is `PASS` only when every selected field has no findings; otherwise it is `REVIEW`. Each entry in `checks` contains its field name, match/exception counts and field-specific findings. A missing record is `INDETERMINATE`; a paired record with unequal values is `FAIL`.
+The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
 
 ## Current limits
 
-- CSV and JSONL only; no direct database connectors.
+- CSV and flat-object JSONL only; no database connectors.
 - Up to 32 fields per run; fields are compared independently.
-- Exact string equality; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
+- Exact string equality only; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
 - No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
-- For each selected field, key matching uses sorted indexes with O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory; benchmark representative exports before production use.
-- SHA-256 manifests detect changes to recorded inputs and reports, but manifests are unsigned and do not establish authenticity or provide a tamper-evident audit trail.
+- Key matching uses sorted indexes: O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory per selected field. Benchmark representative exports before operational use.
+- SHA-256 manifests are unsigned and do not establish authenticity.
+- No independent security assessment, compliance certification or production approval.
 - No claim that a PASS proves overall migration correctness.
-- Not certified for regulated or production-critical validation.
 
-## Design boundaries
+## Paid evaluation
 
-- Local-first execution.
-- Stable input-order results.
-- Source-row traceability.
-- Conservative handling of malformed input and duplicate keys.
-- A passing rule proves only that the specified comparison passed.
+The initial offer is a bounded **Migration Export Verification Evaluation**:
 
-## Commercial and distribution status
+- one source/target dataset pair;
+- one agreed unique key;
+- up to three critical fields;
+- CSV or flat-object JSONL;
+- JSON result, HTML review report, exception register and SHA-256 manifest;
+- a review note separating observed differences from unresolved explanations.
 
-Verity is an early evaluation product. No open-source or commercial license has been selected. Do not redistribute, deploy for a customer, or assume commercial-use rights until written license terms are agreed. See [the evaluation scope](docs/paid-pilot.md) and [data-handling boundaries](docs/data-handling.md).
+See:
+- [Product brief](docs/product-brief.md)
+- [First market and buyer qualification](docs/first-market.md)
+- [Paid pilot scope and acceptance criteria](docs/paid-pilot.md)
+- [Data handling and evaluation boundaries](docs/data-handling.md)
+
+The evaluation is a proposed commercial offer, not a proven price or established customer engagement. Fee, delivery date, payment route, data-handling terms and any license grant must be agreed before work starts.
+
+## Licensing
+
+No open-source or commercial license has been selected. Do not redistribute, deploy for a customer, or assume commercial-use rights until written license terms are agreed. Normal copyright restrictions apply.
