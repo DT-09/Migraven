@@ -101,6 +101,8 @@ int verity_csv_read(const char *path, VerityTable *out, char *error, size_t erro
             continue;
         }
         if (after_quote && c != ',' && c != '\r' && c != '\n' && !isspace((unsigned char)c)) goto malformed;
+        if (after_quote && isspace((unsigned char)c) && c != '\r' && c != '\n') { i++; continue; }
+        if (c == '"' && field_len > 0) goto malformed;
         if (c == '"' && field_len == 0 && !after_quote) { quoted = 1; i++; continue; }
         if (c == ',' || c == '\n' || c == '\r') {
             if (!append_cell(&row, field, field_len)) goto oom;
