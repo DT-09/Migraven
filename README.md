@@ -133,10 +133,12 @@ The initial offer is a bounded **Migration Export Verification Evaluation**:
 - a review note separating observed differences from unresolved explanations.
 
 See:
+- [Buyer one-pager](docs/buyer-one-pager.md)
 - [Product brief](docs/product-brief.md)
 - [First market and buyer qualification](docs/first-market.md)
 - [Paid pilot scope and acceptance criteria](docs/paid-pilot.md)
 - [Data handling and evaluation boundaries](docs/data-handling.md)
+- [Paid evaluation proposal template](docs/pilot-proposal-template.md)
 
 The evaluation is a proposed commercial offer, not a proven price or established customer engagement. Fee, delivery date, payment route, data-handling terms and any license grant must be agreed before work starts.
 
