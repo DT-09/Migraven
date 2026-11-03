@@ -131,6 +131,10 @@ int verity_compare(const VerityTable *left, const VerityTable *right,
         set_error(error, error_size, "Key or value column not found");
         return 0;
     }
+    if (left->row_count == 0 && right->row_count == 0) {
+        set_error(error, error_size, "Both datasets contain no data rows");
+        return 0;
+    }
 
     if (left->row_count > (size_t)-1 / sizeof(*left_index) ||
         right->row_count > (size_t)-1 / sizeof(*right_index)) {
