@@ -7,17 +7,17 @@
 static void usage(void) {
     puts("VERITY — deterministic cross-source data verification\n\n"
          "Usage:\n"
-         "  verity inspect <file.csv>\n"
-         "  verity compare --key <column> --field <column> [--field <column> ...] <left.csv> <right.csv>\n\n"
+         "  verity inspect [--format csv|jsonl] <file>\n"
+         "  verity compare --key <column> --field <column> [--field <column> ...] [--format csv|jsonl] <left> <right>\n\n"
          "Each --field is checked independently against the same unique key.\n"
          "Output is JSON on stdout; diagnostics are written to stderr.");
 }
 
-static int inspect(const char *path) {
+static int read_table(const char *path, const char *format, VerityTable *table, char *error, size_t error_size) {\n    if (strcmp(format, "csv") == 0) return verity_csv_read(path, table, error, error_size);\n    if (strcmp(format, "jsonl") == 0) return verity_jsonl_read(path, table, error, error_size);\n    (void)snprintf(error, error_size, "Unsupported format: %s", format);\n    return 0;\n}\n\nstatic int inspect(const char *path, const char *format) {
     VerityTable t = {0};
     char e[256];
     size_t i;
-    if (!verity_csv_read(path, &t, e, sizeof(e))) {
+    if (!read_table(path, format, &t, e, sizeof(e))) {
         fprintf(stderr, "verity: %s\n", e);
         return 2;
     }
@@ -54,7 +54,7 @@ static void print_findings(const VerityReport *r) {
 }
 
 static int compare_cmd(int argc, char **argv) {
-    const char *key = NULL, *left = NULL, *right = NULL;
+    const char *key = NULL, *left = NULL, *right = NULL, *format = "csv";
     const char *fields[VERITY_MAX_FIELDS];
     VerityReport reports[VERITY_MAX_FIELDS] = {{0}};
     VerityTable a = {0}, b = {0};
@@ -63,7 +63,7 @@ static int compare_cmd(int argc, char **argv) {
     int arg;
 
     for (arg = 2; arg < argc; ++arg) {
-        if (strcmp(argv[arg], "--key") == 0 && arg + 1 < argc) {
+        if (strcmp(argv[arg], "--format") == 0 && arg + 1 < argc) {\n            format = argv[++arg];\n            if (strcmp(format, "csv") != 0 && strcmp(format, "jsonl") != 0) { fprintf(stderr, "verity: format must be csv or jsonl\\n"); return 2; }\n        } else if (strcmp(argv[arg], "--key") == 0 && arg + 1 < argc) {
             key = argv[++arg];
         } else if (strcmp(argv[arg], "--field") == 0 && arg + 1 < argc) {
             size_t j;
@@ -93,11 +93,11 @@ static int compare_cmd(int argc, char **argv) {
         usage();
         return 2;
     }
-    if (!verity_csv_read(left, &a, e, sizeof(e))) {
+    if (!read_table(left, format, &a, e, sizeof(e))) {
         fprintf(stderr, "verity: left input: %s\n", e);
         return 2;
     }
-    if (!verity_csv_read(right, &b, e, sizeof(e))) {
+    if (!read_table(right, format, &b, e, sizeof(e))) {
         fprintf(stderr, "verity: right input: %s\n", e);
         verity_table_free(&a);
         return 2;
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         usage();
         return 0;
     }
-    if (strcmp(argv[1], "inspect") == 0 && argc == 3) return inspect(argv[2]);
+    if (strcmp(argv[1], "inspect") == 0) {\n        const char *format = "csv";\n        if (argc == 3) return inspect(argv[2], format);\n        if (argc == 5 && strcmp(argv[2], "--format") == 0) return inspect(argv[4], argv[3]);\n    }
     if (strcmp(argv[1], "compare") == 0) return compare_cmd(argc, argv);
     usage();
     return 2;
