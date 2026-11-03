@@ -22,7 +22,7 @@ For JSONL:
 
     verity compare --format jsonl --key record_id --field amount source.jsonl target.jsonl
 
-JSONL input is a sequence of flat JSON objects. Every object must contain the same property names in the same order. Supported values are strings, numbers, booleans and null. Nested arrays and objects are rejected.
+JSONL input is a sequence of flat JSON objects. Every object must contain the same property names; property order may differ. Supported values are strings, numbers, booleans and null. Nested arrays and objects are rejected.
 
 Repeat --field to compare several columns in one invocation:
 
