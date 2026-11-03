@@ -43,7 +43,17 @@ ctest --test-dir build --output-on-failure
   examples/migration_target.csv
 ```
 
-For JSONL, select the input format explicitly with `--format jsonl` (the default is CSV):\n\n```bash\n./build/verity compare --format jsonl \\\n  --key record_id --field account_status \\\n  source.jsonl target.jsonl\n```\n\nJSONL records must be objects with the same property names in the same order. String, number, boolean and null values are accepted; nested arrays and objects are not.\n\nCheck multiple fields in one pass by repeating `--field`:
+For JSONL, select the input format explicitly with `--format jsonl` (the default is CSV):
+
+```bash
+./build/verity compare --format jsonl \
+  --key record_id --field account_status \
+  source.jsonl target.jsonl
+```
+
+JSONL records must be objects with the same property names in the same order. String, number, boolean and null values are accepted; nested arrays and objects are not.
+
+Check multiple fields in one pass by repeating `--field`:
 
 ```bash
 ./build/verity compare \
