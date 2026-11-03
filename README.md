@@ -115,7 +115,7 @@ The command emits one JSON object. The top-level status is `PASS` only when ever
 - Exact string equality; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
 - No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
 - For each selected field, key matching uses sorted indexes with O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory; benchmark representative exports before production use.
-- No cryptographic evidence manifest or tamper-evident audit trail.
+- SHA-256 manifests detect changes to recorded inputs and reports, but manifests are unsigned and do not establish authenticity or provide a tamper-evident audit trail.
 - No claim that a PASS proves overall migration correctness.
 - Not certified for regulated or production-critical validation.
 
@@ -127,6 +127,6 @@ The command emits one JSON object. The top-level status is `PASS` only when ever
 - Conservative handling of malformed input and duplicate keys.
 - A passing rule proves only that the specified comparison passed.
 
-## License
+## Commercial and distribution status
 
-No license has been selected. Normal copyright restrictions apply; do not assume open-source or commercial reuse rights.
+Verity is an early evaluation product. No open-source or commercial license has been selected. Do not redistribute, deploy for a customer, or assume commercial-use rights until written license terms are agreed. See [the evaluation scope](docs/paid-pilot.md) and [data-handling boundaries](docs/data-handling.md).
