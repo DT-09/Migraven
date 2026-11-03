@@ -71,6 +71,19 @@ The synthetic example intentionally contains:
 
 Expected report summary for the supplied example: 4 matched keys, 1 source-only key, 1 target-only key, 3 findings. A finding is an observation for human review, not proof of a migration defect.
 
+## Human-readable evidence report
+
+Save the comparison JSON, then render a self-contained HTML report for review:
+
+```bash
+./build/verity compare --key record_id --field account_status \
+  examples/migration_source.csv examples/migration_target.csv > result.json
+
+python tools/render_report.py result.json --output review.html
+```
+
+The HTML report is generated locally. It includes per-field counts, findings, source-row references and a clear human-review disclaimer. It uses no external scripts, fonts or network services.
+
 ## Output contract
 
 The command emits one JSON object. The top-level status is `PASS` only when every selected field has no findings; otherwise it is `REVIEW`. Each entry in `checks` contains its field name, match/exception counts and field-specific findings. A missing record is `INDETERMINATE`; a paired record with unequal values is `FAIL`.
