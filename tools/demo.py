@@ -58,7 +58,7 @@ def main() -> int:
 
         comparison = run([
             str(binary), "compare", "--key", "record_id",
-            "--field", "account_status", "--field", "region",
+            "--field", "account_status",
             str(left), str(right),
         ])
         parsed = json.loads(comparison.stdout)
@@ -77,7 +77,7 @@ def main() -> int:
             sys.executable, str(ROOT / "tools" / "evidence.py"), "create",
             "--left", str(left), "--right", str(right),
             "--report", str(report), "--key", "record_id",
-            "--field", "account_status", "--field", "region",
+            "--field", "account_status",
             "--format", "csv", "--tool-version", "0.1.0",
             "--output", str(manifest),
         ])
