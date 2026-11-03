@@ -11,7 +11,7 @@ REPORT = {
     "format": "csv",
     "checks": [{
         "field": "account_status",
-        "summary": {"matched": 1, "left_only": 0, "right_only": 0, "exceptions": 1},
+        "summary": {"matched": "<img src=x onerror=alert(2)>", "left_only": 0, "right_only": 0, "exceptions": 1},
         "findings": [{
             "key": "<script>alert(1)</script>",
             "left_value": "ACTIVE",
@@ -38,6 +38,8 @@ with tempfile.TemporaryDirectory(prefix="verity report ") as directory:
     assert "INACTIVE" in html
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
     assert "<script>alert(1)</script>" not in html
+    assert "&lt;img src=x onerror=alert(2)&gt;" in html
+    assert "<img src=x onerror=alert(2)>" not in html
 
     invalid = root / "invalid.json"
     invalid.write_text('{"status":"BROKEN"}', encoding="utf-8")
