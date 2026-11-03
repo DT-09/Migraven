@@ -389,7 +389,7 @@ int verity_jsonl_read(const char *path, VerityTable *out,
         out->rows = next_rows;
         out->rows[out->row_count++] = row;
         memset(&row, 0, sizeof(row));
-        free_pairs(keys, values, 0);
+        for (i = 0; i < count; ++i) free(keys ? keys[i] : NULL);
         free(keys);
         free(values);
         line_number++;
