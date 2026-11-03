@@ -84,6 +84,26 @@ python tools/render_report.py result.json --output review.html
 
 The HTML report is generated locally. It includes per-field counts, findings, source-row references and a clear human-review disclaimer. It uses no external scripts, fonts or network services.
 
+## Cryptographic evidence manifest
+
+After creating the JSON report, bind the two input files and report to a versioned SHA-256 manifest:
+
+```bash
+python tools/evidence.py create \\
+  --left examples/migration_source.csv \\
+  --right examples/migration_target.csv \\
+  --report result.json \\
+  --key record_id --field account_status \\
+  --format csv --tool-version 0.1.0 \\
+  --output evidence.json
+
+python tools/evidence.py verify evidence.json
+```
+
+The verifier re-hashes both inputs and the report and checks their recorded byte sizes. It returns `VERIFIED` only when all three match. A changed or missing file produces a non-zero exit code. The manifest records the format, key, fields, comparison semantics and tool version.
+
+**Trust boundary:** the manifest is unsigned. It detects changes relative to the manifest but does not prove who created the manifest or prevent an attacker from replacing both the files and manifest. Preserve the manifest in a trusted, access-controlled location or add a trusted digital signature before using it as formal audit evidence.
+
 ## Output contract
 
 The command emits one JSON object. The top-level status is `PASS` only when every selected field has no findings; otherwise it is `REVIEW`. Each entry in `checks` contains its field name, match/exception counts and field-specific findings. A missing record is `INDETERMINATE`; a paired record with unequal values is `FAIL`.
