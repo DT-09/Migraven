@@ -29,7 +29,7 @@ def render(report):
         summary = check.get("summary") or {}
         findings = check.get("findings") or []
         metrics = "".join(
-            f'<div class="metric"><span>{label}</span><strong>{summary.get(key, 0)}</strong></div>'
+            f'<div class="metric"><span>{label}</span><strong>{esc(summary.get(key, 0))}</strong></div>'
             for key, label in (
                 ("matched", "Matched keys"),
                 ("left_only", "Source only"),
