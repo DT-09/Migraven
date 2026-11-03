@@ -35,7 +35,7 @@ For each field comparison, sorted key indexes provide O((n + m) log(n + m)) inde
 
 ## Trust and evidence boundary
 
-A report records observations made from the supplied files under explicit comparison rules. It does not establish that the source exports were complete, authentic, correctly extracted, or semantically equivalent. A future evidence-manifest layer should bind input hashes, tool version, rule configuration, timestamps and output digest. That layer is not implemented yet.
+A report records observations made from the supplied files under explicit comparison rules. It does not establish that the source exports were complete, authentic, correctly extracted, or semantically equivalent. The `tools/evidence.py` utility creates a versioned SHA-256 manifest binding both input files and the JSON report, along with format, key, fields, semantics, tool version and timestamp. The verifier re-hashes all three files and checks byte sizes. The manifest is unsigned: it detects changes relative to the recorded manifest but does not establish author identity or protect against replacement of the manifest itself. Trusted storage or a digital signature is required for stronger provenance.
 
 ## Next engineering gates
 
