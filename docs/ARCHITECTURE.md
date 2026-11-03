@@ -18,7 +18,7 @@ verity_core is a dependency-free C17 static library. The CLI consumes the public
 
 Both input adapters populate the same table representation: ordered column names, string-valued cells and physical source line numbers.
 
-JSONL strings are decoded. Number and boolean tokens are retained as their lexical representation. JSON null becomes an empty string. Nested arrays and objects are rejected. JSONL records must use the same property names in the same order.
+JSONL strings are decoded. Number and boolean tokens are retained as their lexical representation. JSON null becomes an empty string. Nested arrays and objects are rejected. JSONL records must use the same property names; property order may differ.
 
 The current model is intentionally conservative. It does not infer numeric, date, currency, timezone or domain-specific types. 10, 10.0 and "10" remain different values.
 
