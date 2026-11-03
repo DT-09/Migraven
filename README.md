@@ -1,23 +1,26 @@
 # VERITY
 
-**Infrastructure for verifiable data.**
+**Independent migration verification for CSV exports.**
 
-VERITY is a local-first C17 data verification engine. The initial MVP provides CSV inspection and deterministic cross-source comparison, with machine-readable findings and source-row references.
+Verity is a local-first C17 utility for checking agreed source and target data exports before migration sign-off. It matches records by a unique key, compares a selected field, and returns machine-readable findings with source-row references.
 
-> Status: early development / MVP. Not production-certified. No performance, security-certification, or customer claims are made.
+> Status: early MVP. Not production-certified. No performance, security-certification, or customer claims are made.
 
-## Capabilities
+## First use case
 
-- C17 static library and CLI.
-- CSV parsing with quoted fields, escaped quotes and CRLF.
-- Header and row-width validation.
-- Cross-source comparison using a selected unique key and value column.
-- Duplicate-key rejection.
-- PASS, FAIL and INDETERMINATE findings.
-- JSON output with source row references.
-- CMake build and automated tests.
+A software implementation consultancy has exported records from a legacy system and the migrated system. Before sign-off, the migration lead needs to check whether agreed critical values survived the move.
 
-## Build
+Verity provides a narrow, reproducible check:
+- Read source and target CSV files locally.
+- Validate headers and row widths.
+- Require a non-empty, unique comparison key in each file.
+- Compare one agreed field per run using exact string equality.
+- Report mismatched values and keys present on only one side.
+- Preserve source row references in JSON output.
+
+Run one comparison per critical field. Keep the resulting JSON files together as the evidence bundle. See [first-market positioning](docs/first-market.md) and the [paid pilot scope](docs/paid-pilot.md).
+
+## Quick start
 
 Requirements: CMake 3.16+ and a C17 compiler.
 
@@ -27,14 +30,34 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ```
 
-## Use
+## Demonstration
 
 ```bash
-verity inspect examples/left.csv
-verity compare --key id --field amount examples/left.csv examples/right.csv
+./build/verity inspect examples/migration_source.csv
+
+./build/verity compare \
+  --key record_id \
+  --field account_status \
+  examples/migration_source.csv \
+  examples/migration_target.csv
 ```
 
-Comparison currently uses exact string equality. It does not perform currency conversion, numeric tolerance, fuzzy matching or business-rule inference. Missing keys are INDETERMINATE; unequal matched values are FAIL.
+The synthetic example intentionally contains:
+- one matched key with a changed status;
+- one key present only in the source;
+- one key present only in the target.
+
+Expected report summary: 4 matched keys, 1 source-only key, 1 target-only key, 3 findings. A finding is an observation for human review, not proof of a migration defect.
+
+## Current limits
+
+- CSV only; no direct database connectors.
+- One selected field per comparison run.
+- Exact string equality; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
+- No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
+- No cryptographic evidence manifest or tamper-evident audit trail.
+- No claim that a PASS proves overall migration correctness.
+- Not certified for regulated or production-critical validation.
 
 ## Design boundaries
 
@@ -43,15 +66,6 @@ Comparison currently uses exact string equality. It does not perform currency co
 - Source-row traceability.
 - Conservative handling of malformed input and duplicate keys.
 - A passing rule proves only that the specified comparison passed.
-
-## Roadmap
-
-1. Harden parser and comparison contracts.
-2. Add JSON/JSONL ingestion and typed canonical records.
-3. Add versioned rules and numeric comparisons.
-4. Add cryptographic input fingerprints and reproducible evidence manifests.
-5. Add Python bindings and stable shared-library ABI.
-6. Add fuzzing, sanitizers, CI and reproducible benchmarks.
 
 ## License
 
