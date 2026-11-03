@@ -58,12 +58,12 @@ with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
     jsonl_right = root / "target.jsonl"
     jsonl_left.write_text(
         '{"id":"A","status":"ACTIVE","region":"EU"}\n'
-        '{"id":"B","status":"PENDING","region":"US"}\n',
+        '{"region":"US","status":"PENDING","id":"B"}\n',
         encoding="utf-8",
     )
     jsonl_right.write_text(
         '{"id":"A","status":"ACTIVE","region":"EU"}\n'
-        '{"id":"B","status":"ACTIVE","region":"US"}\n',
+        '{"status":"ACTIVE","id":"B","region":"US"}\n',
         encoding="utf-8",
     )
     jsonl_result = run(
