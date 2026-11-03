@@ -10,7 +10,7 @@ static void usage(void) {
          "  verity inspect [--format csv|jsonl] <file>\n"
          "  verity compare --key <column> --field <column> [--field <column> ...] [--format csv|jsonl] <left> <right>\n\n"
          "Each --field is checked independently against the same unique key.\n"
-         "Output is JSON on stdout; diagnostics are written to stderr.");
+         "CSV and flat-object JSONL are supported. Output is JSON on stdout.");
 }
 
 static int read_table(const char *path, const char *format, VerityTable *table,
@@ -24,11 +24,11 @@ static int read_table(const char *path, const char *format, VerityTable *table,
 }
 
 static int inspect(const char *path, const char *format) {
-    VerityTable t = {0};
-    char e[256];
+    VerityTable table = {0};
+    char error[256];
     size_t i;
-    if (!read_table(path, format, &t, e, sizeof(e))) {
-        fprintf(stderr, "verity: %s\n", e);
+    if (!read_table(path, format, &table, error, sizeof(error))) {
+        fprintf(stderr, "verity: %s\n", error);
         return 2;
     }
     printf("{\"file\":");
@@ -36,30 +36,30 @@ static int inspect(const char *path, const char *format) {
     printf(",\"format\":");
     verity_json_string(format);
     printf(",\"columns\":[");
-    for (i = 0; i < t.header_count; ++i) {
+    for (i = 0; i < table.header_count; ++i) {
         if (i) putchar(',');
-        verity_json_string(t.headers[i]);
+        verity_json_string(table.headers[i]);
     }
-    printf("],\"row_count\":%zu}\n", t.row_count);
-    verity_table_free(&t);
+    printf("],\"row_count\":%zu}\n", table.row_count);
+    verity_table_free(&table);
     return 0;
 }
 
-static void print_findings(const VerityReport *r) {
+static void print_findings(const VerityReport *report) {
     size_t i;
     putchar('[');
-    for (i = 0; i < r->finding_count; ++i) {
-        const VerityFinding *f = &r->findings[i];
+    for (i = 0; i < report->finding_count; ++i) {
+        const VerityFinding *finding = &report->findings[i];
         if (i) putchar(',');
         printf("{\"key\":");
-        verity_json_string(f->key);
+        verity_json_string(finding->key);
         printf(",\"left_value\":");
-        verity_json_string(f->left_value);
+        verity_json_string(finding->left_value);
         printf(",\"right_value\":");
-        verity_json_string(f->right_value);
+        verity_json_string(finding->right_value);
         printf(",\"left_row\":%zu,\"right_row\":%zu,\"status\":",
-               f->left_row, f->right_row);
-        verity_json_string(verity_status_name(f->status));
+               finding->left_row, finding->right_row);
+        verity_json_string(verity_status_name(finding->status));
         putchar('}');
     }
     putchar(']');
@@ -70,7 +70,7 @@ static int compare_cmd(int argc, char **argv) {
     const char *fields[VERITY_MAX_FIELDS];
     VerityReport reports[VERITY_MAX_FIELDS] = {{0}};
     VerityTable a = {0}, b = {0};
-    char e[256];
+    char error[256];
     size_t field_count = 0, i;
     int arg;
 
@@ -111,19 +111,19 @@ static int compare_cmd(int argc, char **argv) {
         usage();
         return 2;
     }
-    if (!read_table(left, format, &a, e, sizeof(e))) {
-        fprintf(stderr, "verity: left input: %s\n", e);
+    if (!read_table(left, format, &a, error, sizeof(error))) {
+        fprintf(stderr, "verity: left input: %s\n", error);
         return 2;
     }
-    if (!read_table(right, format, &b, e, sizeof(e))) {
-        fprintf(stderr, "verity: right input: %s\n", e);
+    if (!read_table(right, format, &b, error, sizeof(error))) {
+        fprintf(stderr, "verity: right input: %s\n", error);
         verity_table_free(&a);
         return 2;
     }
 
     for (i = 0; i < field_count; ++i) {
-        if (!verity_compare(&a, &b, key, fields[i], &reports[i], e, sizeof(e))) {
-            fprintf(stderr, "verity: field '%s': %s\n", fields[i], e);
+        if (!verity_compare(&a, &b, key, fields[i], &reports[i], error, sizeof(error))) {
+            fprintf(stderr, "verity: field '%s': %s\n", fields[i], error);
             while (i > 0) verity_report_free(&reports[--i]);
             verity_table_free(&a);
             verity_table_free(&b);
@@ -142,15 +142,15 @@ static int compare_cmd(int argc, char **argv) {
         verity_json_string(format);
         printf(",\"checks\":[");
         for (i = 0; i < field_count; ++i) {
-            const VerityReport *r = &reports[i];
+            const VerityReport *report = &reports[i];
             if (i) putchar(',');
             printf("{\"field\":");
             verity_json_string(fields[i]);
             printf(",\"summary\":{\"matched\":%zu,\"left_only\":%zu,"
                    "\"right_only\":%zu,\"exceptions\":%zu},\"findings\":",
-                   r->matched_count, r->left_only_count, r->right_only_count,
-                   r->finding_count);
-            print_findings(r);
+                   report->matched_count, report->left_only_count,
+                   report->right_only_count, report->finding_count);
+            print_findings(report);
             putchar('}');
         }
         puts("]}");
@@ -163,18 +163,21 @@ static int compare_cmd(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) { usage(); return 2; }
+    if (argc < 2) {
+        usage();
+        return 2;
+    }
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "help") == 0) {
         usage();
         return 0;
     }
     if (strcmp(argv[1], "inspect") == 0) {
-        const char *format = "csv";
-        if (argc == 3) return inspect(argv[2], format);
+        if (argc == 3) return inspect(argv[2], "csv");
         if (argc == 5 && strcmp(argv[2], "--format") == 0)
             return inspect(argv[4], argv[3]);
     }
-    if (strcmp(argv[1], "compare") == 0) return compare_cmd(argc, argv);
+    if (strcmp(argv[1], "compare") == 0)
+        return compare_cmd(argc, argv);
     usage();
     return 2;
 }
