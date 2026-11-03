@@ -135,6 +135,19 @@ int verity_csv_read(const char *path, VerityTable *out, char *error, size_t erro
     }
     if (quoted) { set_error(error, error_size, "Unterminated quoted CSV field"); goto fail; }
     if (out->header_count == 0) { set_error(error, error_size, "CSV has no header row"); goto fail; }
+    for (i = 0; i < out->header_count; ++i) {
+        size_t j;
+        if (!out->headers[i][0]) {
+            set_error(error, error_size, "CSV header names must not be empty");
+            goto fail;
+        }
+        for (j = 0; j < i; ++j) {
+            if (strcmp(out->headers[i], out->headers[j]) == 0) {
+                set_error(error, error_size, "CSV header names must be unique");
+                goto fail;
+            }
+        }
+    }
     for (i = 0; i < out->row_count; ++i) {
         if (out->rows[i].cell_count != out->header_count) {
             set_error(error, error_size, "CSV row has a different number of columns than header");
