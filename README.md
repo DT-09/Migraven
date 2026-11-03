@@ -1,8 +1,8 @@
 # VERITY
 
-**Independent migration verification for CSV exports.**
+**Independent migration verification for CSV and JSONL exports.**
 
-Verity is a local-first C17 utility for checking agreed source and target data exports before migration sign-off. It matches records by a unique key, checks several selected fields in one run, and returns machine-readable findings with source-row references.
+Verity is a local-first C17 utility for checking agreed source and target CSV or JSONL exports before migration sign-off. It matches records by a unique key, checks several selected fields in one run, and returns machine-readable findings with source-row references.
 
 > Status: early MVP. Not production-certified. No performance, security-certification, or customer claims are made.
 
@@ -11,7 +11,7 @@ Verity is a local-first C17 utility for checking agreed source and target data e
 A software implementation consultancy has exported records from a legacy system and the migrated system. Before sign-off, the migration lead needs to check whether agreed critical values survived the move.
 
 Verity provides a narrow, reproducible check:
-- Read source and target CSV files locally.
+- Read source and target CSV or JSONL files locally.
 - Validate headers and row widths.
 - Require a non-empty, unique comparison key in each file.
 - Compare up to 32 selected fields in one invocation using exact string equality.
@@ -23,7 +23,7 @@ See [first-market positioning](docs/first-market.md) and the [paid pilot scope](
 
 ## Quick start
 
-Requirements: CMake 3.16+ and a C17 compiler.
+Requirements: CMake 3.16+, a C17 compiler, and Python 3 when tests are enabled.
 
 ```bash
 cmake -S . -B build -DVERITY_BUILD_TESTS=ON
@@ -43,7 +43,7 @@ ctest --test-dir build --output-on-failure
   examples/migration_target.csv
 ```
 
-Check multiple fields in one pass by repeating `--field`:
+For JSONL, select the input format explicitly with `--format jsonl` (the default is CSV):\n\n```bash\n./build/verity compare --format jsonl \\\n  --key record_id --field account_status \\\n  source.jsonl target.jsonl\n```\n\nJSONL records must be objects with the same property names in the same order. String, number, boolean and null values are accepted; nested arrays and objects are not.\n\nCheck multiple fields in one pass by repeating `--field`:
 
 ```bash
 ./build/verity compare \
@@ -67,7 +67,7 @@ The command emits one JSON object. The top-level status is `PASS` only when ever
 
 ## Current limits
 
-- CSV only; no direct database connectors.
+- CSV and JSONL only; no direct database connectors.
 - Up to 32 fields per run; fields are compared independently.
 - Exact string equality; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
 - No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
