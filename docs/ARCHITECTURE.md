@@ -30,7 +30,7 @@ The caller selects one unique key column and one or more fields. Keys must be no
 - FAIL: a paired key has unequal values.
 - INDETERMINATE: a key exists on only one side; the engine does not infer why.
 
-Sorted key indexes provide O((n + m) log(n + m)) index preparation and O(n + m) auxiliary memory. Output findings retain original input row numbers. Benchmark representative datasets before making throughput claims.
+For each field comparison, sorted key indexes provide O((n + m) log(n + m)) index preparation and O(n + m) auxiliary memory. Multiple fields are evaluated independently; benchmark representative datasets before making throughput claims. Output findings retain original input row numbers. Benchmark representative datasets before making throughput claims.
 
 ## Trust and evidence boundary
 
