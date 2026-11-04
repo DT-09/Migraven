@@ -21,6 +21,8 @@ if(VERITY_BUILD_TESTS)
   find_package(Python3 3.10 COMPONENTS Interpreter REQUIRED)
   add_test(NAME verity_cli_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_cli.py $<TARGET_FILE:verity>)
+  add_test(NAME verity_csv_edge_tests
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_csv_edges.py $<TARGET_FILE:verity>)
   add_test(NAME verity_report_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_report.py)
   add_test(NAME verity_evidence_tests
