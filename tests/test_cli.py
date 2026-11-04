@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory(prefix="migraven cli ") as directory:
     }
     assert report["checks"][0]["findings"][0]["key"] == "B"
     assert report["checks"][0]["findings"][0]["status"] == "FAIL"
-    assert report["checks"][1]["summary"]["exceptions"] == 2
+    assert report["checks"][1]["summary"]["exceptions"] == 2\n\n    strict = run(\n        "compare", "--strict", "--key", "id",\n        "--field", "status", str(left), str(right),\n    )\n    assert strict.returncode == 1\n    assert json.loads(strict.stdout)["status"] == "REVIEW"
 
     duplicate = run(
         "compare", "--key", "id", "--field", "status",
