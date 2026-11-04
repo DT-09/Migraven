@@ -53,7 +53,7 @@ def main() -> int:
             if path.is_file():
                 bundle.write(path, path.relative_to(output_dir))
     checksum = output_dir / f"{archive.name}.sha256"
-    checksum.write_text(f"{sha256(archive)}  {archive.name}\\n", encoding="ascii")
+    checksum.write_text(f"{sha256(archive)}  {archive.name}\n", encoding="ascii")
     print(f"PACKAGE: {archive}")
     print(f"SHA256: {checksum}")
     print(f"DEMO: {demo_output}")
