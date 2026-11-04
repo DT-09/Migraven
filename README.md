@@ -160,6 +160,10 @@ See:
 
 The evaluation is a proposed commercial offer, not a proven price or established customer engagement. Fee, delivery date, payment route, data-handling terms and any license grant must be agreed before work starts.
 
+## Product website
+
+The multi-page static buyer website is in [`website/`](website/). It explains the product, comparison semantics, evaluation scope and evidence boundaries. It does not accept uploads or process customer files. Deployment instructions are in [`website/README.md`](website/README.md).
+
 ## Licensing
 
 No open-source or commercial license has been selected. Do not redistribute, deploy for a customer, or assume commercial-use rights until written license terms are agreed. Normal copyright restrictions apply.
