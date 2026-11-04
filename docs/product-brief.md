@@ -1,8 +1,8 @@
-# Verity — product and evaluation brief
+# Migraven — product and evaluation brief
 
 ## Product
 
-Verity is a local-first migration export verification utility for ERP/CRM implementation teams. It compares agreed source and target exports by a unique key, checks selected fields using exact string equality, and produces row-linked findings for human review.
+Migraven is a local-first migration export verification utility for ERP/CRM implementation teams. It compares agreed source and target exports by a unique key, checks selected fields using exact string equality, and produces row-linked findings for human review.
 
 ## Buyer and trigger
 
@@ -35,7 +35,7 @@ No database connectors, automated schema mapping, transformation-rule testing, f
 3. **Scope confirmation:** both sides agree the comparison rules, outputs, fee, delivery date and data handling in writing.
 4. **Paid evaluation:** payment and authorization are confirmed before scoped delivery begins.
 5. **Run and review:** produce outputs, inspect exceptions with the buyer, and record unresolved explanations.
-6. **Decision:** buyer decides whether to use Verity on another project or stop.
+6. **Decision:** buyer decides whether to use Migraven on another project or stop.
 
 ## Acceptance
 
@@ -52,7 +52,7 @@ Acceptance means the scoped deliverables were produced. It does not mean the mig
 
 ## Commercial status
 
-The paid evaluation is a proposed service offer, not a proven market price or established customer engagement. Fee, delivery date, payment method, support and any license grant must be agreed before work starts. Verity currently has no published commercial license.
+The paid evaluation is a proposed service offer, not a proven market price or established customer engagement. Fee, delivery date, payment method, support and any license grant must be agreed before work starts. Migraven currently has no published commercial license.
 
 ## Go / no-go rule
 

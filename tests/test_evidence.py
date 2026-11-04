@@ -15,7 +15,7 @@ def run(*args):
     )
 
 
-with tempfile.TemporaryDirectory(prefix="verity evidence ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven evidence ") as directory:
     root = pathlib.Path(directory)
     left = root / "source.csv"
     right = root / "target.csv"
@@ -35,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix="verity evidence ") as directory:
     )
     assert created.returncode == 0, created.stderr
     data = json.loads(manifest.read_text(encoding="utf-8"))
-    assert data["schema"] == "verity-evidence/v1"
+    assert data["schema"] == "migraven-evidence/v1"
     assert data["comparison"]["key"] == "id"
     assert data["comparison"]["fields"] == ["value"]
     assert data["files"]["left"]["sha256"] == hashlib.sha256(left.read_bytes()).hexdigest()

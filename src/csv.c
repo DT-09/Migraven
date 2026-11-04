@@ -1,4 +1,4 @@
-#include "verity/verity.h"
+#include "migraven/migraven.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +17,7 @@ static char *dup_n(const char *s, size_t n) {
     p[n] = '\0';
     return p;
 }
-static int append_cell(VerityRow *row, const char *s, size_t n) {
+static int append_cell(MigravenRow *row, const char *s, size_t n) {
     char **next;
     if (n > V_MAX_FIELD_BYTES) return 0;
     next = (char **)realloc(row->cells, (row->cell_count + 1) * sizeof(*next));
@@ -28,21 +28,21 @@ static int append_cell(VerityRow *row, const char *s, size_t n) {
     row->cell_count++;
     return 1;
 }
-static int append_row(VerityTable *t, VerityRow *row) {
-    VerityRow *next = (VerityRow *)realloc(t->rows, (t->row_count + 1) * sizeof(*next));
+static int append_row(MigravenTable *t, MigravenRow *row) {
+    MigravenRow *next = (MigravenRow *)realloc(t->rows, (t->row_count + 1) * sizeof(*next));
     if (!next) return 0;
     t->rows = next;
     t->rows[t->row_count++] = *row;
     memset(row, 0, sizeof(*row));
     return 1;
 }
-static void row_free(VerityRow *r) {
+static void row_free(MigravenRow *r) {
     size_t i;
     for (i = 0; i < r->cell_count; ++i) free(r->cells[i]);
     free(r->cells);
     memset(r, 0, sizeof(*r));
 }
-void verity_table_free(VerityTable *t) {
+void migraven_table_free(MigravenTable *t) {
     size_t i;
     if (!t) return;
     for (i = 0; i < t->header_count; ++i) free(t->headers[i]);
@@ -51,13 +51,13 @@ void verity_table_free(VerityTable *t) {
     free(t->rows);
     memset(t, 0, sizeof(*t));
 }
-int verity_csv_read(const char *path, VerityTable *out, char *error, size_t error_size) {
+int migraven_csv_read(const char *path, MigravenTable *out, char *error, size_t error_size) {
     FILE *fp;
     long end;
     size_t len, i = 0, row_no = 1;
     char *buf, *field;
     size_t field_len = 0, field_cap = 128;
-    VerityRow row = {0};
+    MigravenRow row = {0};
     int quoted = 0, after_quote = 0;
 
     if (!path || !out) { set_error(error, error_size, "Invalid argument"); return 0; }
@@ -180,6 +180,6 @@ fail:
     row_free(&row);
     free(field);
     free(buf);
-    verity_table_free(out);
+    migraven_table_free(out);
     return 0;
 }

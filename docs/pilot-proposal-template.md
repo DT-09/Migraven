@@ -1,4 +1,4 @@
-# Verity — paid evaluation proposal
+# Migraven — paid evaluation proposal
 
 > Complete every bracketed field and obtain appropriate review before sending. This is a proposal template, not a legal contract.
 

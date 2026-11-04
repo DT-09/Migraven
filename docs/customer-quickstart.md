@@ -1,12 +1,12 @@
 # Customer quick start
 
-This guide assumes you received a Verity platform ZIP and have Python 3.10+ installed. Verity does not upload your files; run it on a machine you control.
+This guide assumes you received a Migraven platform ZIP and have Python 3.10+ installed. Migraven does not upload your files; run it on a machine you control.
 
 ## 1. Extract the package
 
 Extract the ZIP. The folder contains:
 
-- `bin/verity` or `bin/verity.exe` — comparison engine.
+- `bin/migraven` or `bin/migraven.exe` — comparison engine.
 - `examples/` — synthetic sample exports.
 - `tools/` — local HTML report and evidence utilities.
 - `demo-output/` — completed synthetic example, including JSON, HTML and manifest.
@@ -17,13 +17,13 @@ Run the bundled demonstration first. It uses synthetic data only.
 ### Windows PowerShell
 
 ```powershell
-python .\tools\demo.py --binary .\bin\verity.exe --examples-dir .\examples --output .\demo-output-check
+python .\tools\demo.py --binary .\bin\migraven.exe --examples-dir .\examples --output .\demo-output-check
 ```
 
 ### macOS / Linux
 
 ```bash
-python3 tools/demo.py --binary ./bin/verity --examples-dir ./examples --output ./demo-output-check
+python3 tools/demo.py --binary ./bin/migraven --examples-dir ./examples --output ./demo-output-check
 ```
 
 ## 2. Prepare the two exports
@@ -45,16 +45,16 @@ Example with a key called `record_id` and a field called `account_status`.
 Windows PowerShell:
 
 ```powershell
-.\bin\verity.exe compare --key record_id --field account_status C:\work\source.csv C:\work\target.csv > C:\work\comparison.json
+.\bin\migraven.exe compare --key record_id --field account_status C:\work\source.csv C:\work\target.csv > C:\work\comparison.json
 ```
 
 macOS / Linux:
 
 ```bash
-./bin/verity compare --key record_id --field account_status /work/source.csv /work/target.csv > /work/comparison.json
+./bin/migraven compare --key record_id --field account_status /work/source.csv /work/target.csv > /work/comparison.json
 ```
 
-Repeat `--field` for additional columns, up to 32 distinct fields. Each field is evaluated independently. Verity uses exact string equality; it does not normalize dates, numbers, currencies, whitespace or case.
+Repeat `--field` for additional columns, up to 32 distinct fields. Each field is evaluated independently. Migraven uses exact string equality; it does not normalize dates, numbers, currencies, whitespace or case.
 
 A process exit code of zero means the comparison ran. It does not mean the datasets matched. Inspect the JSON `status` value:
 

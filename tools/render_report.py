@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render a Verity JSON result as a self-contained HTML review report."""
+"""Render a Migraven JSON result as a self-contained HTML review report."""
 
 import argparse
 import html
@@ -14,20 +14,40 @@ def esc(value):
 
 def render(report):
     if not isinstance(report, dict) or report.get("status") not in {"PASS", "REVIEW"}:
-        raise ValueError("Input is not a Verity comparison report")
+        raise ValueError("Input is not a Migraven comparison report")
     checks = report.get("checks")
     if not isinstance(checks, list):
         raise ValueError("Report is missing its checks array")
 
     status = report["status"]
     status_class = "pass" if status == "PASS" else "review"
+    input_details = ""
+    inputs = report.get("inputs")
+    if isinstance(inputs, dict):
+        details = []
+        for label in ("source", "target"):
+            entry = inputs.get(label)
+            if isinstance(entry, dict):
+                filename = esc(entry.get("file", "—"))
+                row_count = esc(entry.get("rows", "—"))
+                details.append(
+                    f'<span>{label.title()} export: <strong>{filename}</strong> '
+                    f'· {row_count} rows</span>'
+                )
+        input_details = "".join(details)
     sections = []
     for check in checks:
         if not isinstance(check, dict):
             raise ValueError("Invalid check entry")
         field = esc(check.get("field", ""))
-        summary = check.get("summary") or {}
-        findings = check.get("findings") or []
+        summary = check.get("summary")
+        findings = check.get("findings")
+        if not isinstance(summary, dict):
+            raise ValueError("Invalid summary object in check entry")
+        if not isinstance(findings, list):
+            raise ValueError("Invalid findings array in check entry")
+        if any(not isinstance(finding, dict) for finding in findings):
+            raise ValueError("Invalid finding entry")
         metrics = "".join(
             f'<div class="metric"><span>{label}</span><strong>{esc(summary.get(key, 0))}</strong></div>'
             for key, label in (
@@ -73,7 +93,7 @@ def render(report):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Verity migration verification report</title>
+<title>Migraven migration verification report</title>
 <style>
 :root{{color-scheme:light;--ink:#202522;--muted:#68716c;--line:#dce2dc;--paper:#f5f5ef;--card:#fff;--accent:#9a7954;}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}}
@@ -102,20 +122,21 @@ footer{{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-s
 </style>
 </head>
 <body><main>
-<header><div class="kicker">Verity / Evidence review</div>
+<header><div class="kicker">Migraven / Evidence review</div>
 <h1>Migration verification report</h1>
 <p><span class="status {status_class}">{status}</span></p>
 <div class="meta"><span>Comparison key: <strong>{esc(report.get("key", ""))}</strong></span>
 <span>Input format: <strong>{esc(report.get("format", "csv")).upper()}</strong></span>
-<span>Field checks: <strong>{len(checks)}</strong></span></div></header>
+<span>Field checks: <strong>{len(checks)}</strong></span></div>
+<div class="meta">{input_details}</div></header>
 {checks_html}
-<footer>Verity reports observed differences in the supplied exports. A finding is not proof of a migration defect. Review source records, transformation rules and business context before sign-off. A PASS applies only to the selected key and fields; it does not certify the full migration.</footer>
+<footer>Migraven reports observed differences in the supplied exports. A finding is not proof of a migration defect. Review source records, transformation rules and business context before sign-off. A PASS applies only to the selected key and fields; it does not certify the full migration.</footer>
 </main></body></html>"""
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("input", nargs="?", help="Verity JSON report (default: stdin)")
+    parser.add_argument("input", nargs="?", help="Migraven JSON report (default: stdin)")
     parser.add_argument("-o", "--output", help="HTML output path (default: stdout)")
     args = parser.parse_args()
 
@@ -128,7 +149,7 @@ def main():
         else:
             sys.stdout.write(document)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
-        print(f"verity-report: {exc}", file=sys.stderr)
+        print(f"migraven-report: {exc}", file=sys.stderr)
         return 2
     return 0
 

@@ -4,12 +4,12 @@ import subprocess
 import sys
 import tempfile
 
-VERITY = sys.argv[1]
+MIGRAVEN = sys.argv[1]
 
 def run(*args):
-    return subprocess.run([VERITY, *args], text=True, capture_output=True, check=False)
+    return subprocess.run([MIGRAVEN, *args], text=True, capture_output=True, check=False)
 
-with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven cli ") as directory:
     root = pathlib.Path(directory)
     left = root / "source data.csv"
     right = root / "target data.csv"
@@ -32,6 +32,10 @@ with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
     assert report["status"] == "REVIEW"
     assert report["key"] == "id"
     assert report["format"] == "csv"
+    assert report["inputs"] == {
+        "source": {"file": "source data.csv", "rows": 3},
+        "target": {"file": "target data.csv", "rows": 3},
+    }
     assert len(report["checks"]) == 2
     assert report["checks"][0]["summary"] == {
         "matched": 2, "left_only": 1, "right_only": 1, "exceptions": 3

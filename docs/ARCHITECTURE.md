@@ -2,11 +2,11 @@
 
 ## Product boundary
 
-Verity is a local-first verification engine for comparing agreed source and target exports before migration sign-off. It is not a migration tool, data-cleaning platform, ETL engine, or proof that an entire migration is correct.
+Migraven is a local-first verification engine for comparing agreed source and target exports before migration sign-off. It is not a migration tool, data-cleaning platform, ETL engine, or proof that an entire migration is correct.
 
 ## Current implementation
 
-verity_core is a dependency-free C17 static library. The CLI consumes the public API in include/verity/verity.h.
+migraven_core is a dependency-free C17 static library. The CLI consumes the public API in include/migraven/migraven.h.
 
 - csv.c: bounded CSV loading, quoted-field parsing, row-width validation and table ownership.
 - jsonl.c: bounded flat-object JSONL parsing, scalar normalization, UTF-8 preservation, duplicate-property rejection and schema consistency checks.

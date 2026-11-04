@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create and verify SHA-256 evidence manifests for Verity comparison runs."""
+"""Create and verify SHA-256 evidence manifests for Migraven comparison runs."""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 from datetime import datetime, timezone
 
-SCHEMA = "verity-evidence/v1"
+SCHEMA = "migraven-evidence/v1"
 
 
 def sha256_file(path: Path) -> tuple[str, int]:
@@ -55,7 +55,7 @@ def create(args: argparse.Namespace) -> int:
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"Cannot read comparison report: {exc}") from exc
     if not isinstance(report_data, dict) or report_data.get("status") not in {"PASS", "REVIEW"}:
-        raise ValueError("Report is not a valid Verity comparison result")
+        raise ValueError("Report is not a valid Migraven comparison result")
     if report_data.get("key") != args.key or report_data.get("format") != args.format:
         raise ValueError("Manifest key/format do not match the comparison report")
     checks = report_data.get("checks")
@@ -82,7 +82,7 @@ def create(args: argparse.Namespace) -> int:
     manifest = {
         "schema": SCHEMA,
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
-        "tool": {"name": "Verity", "version": args.tool_version},
+        "tool": {"name": "Migraven", "version": args.tool_version},
         "comparison": {
             "format": args.format,
             "key": args.key,
@@ -163,7 +163,7 @@ def verify(args: argparse.Namespace) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(description="Create or verify Verity SHA-256 evidence manifests")
+    root = argparse.ArgumentParser(description="Create or verify Migraven SHA-256 evidence manifests")
     commands = root.add_subparsers(dest="command", required=True)
 
     make = commands.add_parser("create", help="Create a manifest for one comparison run")
@@ -188,7 +188,7 @@ def main() -> int:
     try:
         return args.func(args)
     except (OSError, ValueError) as exc:
-        print(f"verity-evidence: {exc}", file=sys.stderr)
+        print(f"migraven-evidence: {exc}", file=sys.stderr)
         return 2
 
 

@@ -1,4 +1,4 @@
-#include "verity/verity.h"
+#include "migraven/migraven.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,9 +11,9 @@ static void write_file(const char *path, const char *content) {
 }
 
 int main(void) {
-    VerityTable a = {0}, b = {0}, dup = {0}, dup_right = {0};
-    VerityTable bad_header = {0}, empty_key = {0}, no_rows = {0};
-    VerityReport report = {0};
+    MigravenTable a = {0}, b = {0}, dup = {0}, dup_right = {0};
+    MigravenTable bad_header = {0}, empty_key = {0}, no_rows = {0};
+    MigravenReport report = {0};
     char error[256];
 
     write_file("test_left.csv", "id,amount,note\nA,10,\"widget, small\"\nB,20,\"line \"\"quoted\"\"\"\n");
@@ -24,45 +24,45 @@ int main(void) {
     write_file("test_empty_key.csv", "id,amount\n,10\n");
     write_file("test_no_rows.csv", "id,amount\n");
 
-    assert(verity_csv_read("test_left.csv", &a, error, sizeof(error)));
+    assert(migraven_csv_read("test_left.csv", &a, error, sizeof(error)));
     assert(a.row_count == 2);
     assert(strcmp(a.rows[0].cells[2], "widget, small") == 0);
     assert(strcmp(a.rows[1].cells[2], "line \"quoted\"") == 0);
-    assert(verity_csv_read("test_right.csv", &b, error, sizeof(error)));
-    assert(verity_compare(&a, &b, "id", "amount", &report, error, sizeof(error)));
+    assert(migraven_csv_read("test_right.csv", &b, error, sizeof(error)));
+    assert(migraven_compare(&a, &b, "id", "amount", &report, error, sizeof(error)));
     assert(report.matched_count == 2);
     assert(report.right_only_count == 1);
     assert(report.finding_count == 2);
     assert(strcmp(report.findings[0].key, "B") == 0);
-    assert(report.findings[0].status == VERITY_FAIL);
+    assert(report.findings[0].status == MIGRAVEN_FAIL);
 
-    assert(verity_csv_read("test_duplicate.csv", &dup, error, sizeof(error)));
-    assert(!verity_compare(&dup, &b, "id", "amount", &report, error, sizeof(error)));
+    assert(migraven_csv_read("test_duplicate.csv", &dup, error, sizeof(error)));
+    assert(!migraven_compare(&dup, &b, "id", "amount", &report, error, sizeof(error)));
     assert(strstr(error, "Duplicate key in left") != NULL);
 
-    assert(verity_csv_read("test_duplicate_right.csv", &dup_right, error, sizeof(error)));
-    assert(!verity_compare(&a, &dup_right, "id", "amount", &report, error, sizeof(error)));
+    assert(migraven_csv_read("test_duplicate_right.csv", &dup_right, error, sizeof(error)));
+    assert(!migraven_compare(&a, &dup_right, "id", "amount", &report, error, sizeof(error)));
     assert(strstr(error, "Duplicate key in right") != NULL);
 
-    assert(!verity_csv_read("test_bad_header.csv", &bad_header, error, sizeof(error)));
+    assert(!migraven_csv_read("test_bad_header.csv", &bad_header, error, sizeof(error)));
     assert(strstr(error, "header names must be unique") != NULL);
 
-    assert(verity_csv_read("test_empty_key.csv", &empty_key, error, sizeof(error)));
-    assert(!verity_compare(&empty_key, &b, "id", "amount", &report, error, sizeof(error)));
+    assert(migraven_csv_read("test_empty_key.csv", &empty_key, error, sizeof(error)));
+    assert(!migraven_compare(&empty_key, &b, "id", "amount", &report, error, sizeof(error)));
     assert(strstr(error, "Empty key in left") != NULL);
 
-    assert(verity_csv_read("test_no_rows.csv", &no_rows, error, sizeof(error)));
-    assert(!verity_compare(&no_rows, &no_rows, "id", "amount", &report, error, sizeof(error)));
+    assert(migraven_csv_read("test_no_rows.csv", &no_rows, error, sizeof(error)));
+    assert(!migraven_compare(&no_rows, &no_rows, "id", "amount", &report, error, sizeof(error)));
     assert(strstr(error, "no data rows") != NULL);
 
-    verity_report_free(&report);
-    verity_table_free(&a);
-    verity_table_free(&b);
-    verity_table_free(&dup);
-    verity_table_free(&dup_right);
-    verity_table_free(&bad_header);
-    verity_table_free(&empty_key);
-    verity_table_free(&no_rows);
+    migraven_report_free(&report);
+    migraven_table_free(&a);
+    migraven_table_free(&b);
+    migraven_table_free(&dup);
+    migraven_table_free(&dup_right);
+    migraven_table_free(&bad_header);
+    migraven_table_free(&empty_key);
+    migraven_table_free(&no_rows);
     remove("test_left.csv");
     remove("test_right.csv");
     remove("test_duplicate.csv");

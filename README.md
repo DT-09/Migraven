@@ -1,8 +1,8 @@
-# VERITY
+# MIGRAVEN
 
 **Migration export verification with source-row evidence.**
 
-Verity is a local-first C17 utility for implementation consultancies and migration teams. It compares agreed source and target CSV or flat-object JSONL exports by a unique key, checks selected fields using exact string equality, and produces reviewable findings with source-row references.
+Migraven is a local-first C17 utility for implementation consultancies and migration teams. It compares agreed source and target CSV or flat-object JSONL exports by a unique key, checks selected fields using exact string equality, and produces reviewable findings with source-row references.
 
 > **Product status:** early evaluation product. It is not production-certified, independently security-assessed, or a migration-correctness guarantee. No customer, savings, or performance claims are made.
 
@@ -12,7 +12,7 @@ ERP/CRM implementation consultancies and migration delivery teams that need a re
 
 **The job:** compare two agreed exports and give the migration lead a traceable exception list to review.
 
-Verity is deliberately narrower than a full migration-testing platform. It does not replace transformation testing, schema mapping, integration testing, or business acceptance.
+Migraven is deliberately narrower than a full migration-testing platform. It does not replace transformation testing, schema mapping, integration testing, or business acceptance.
 
 ## What it does
 
@@ -33,7 +33,7 @@ A finding is an observation, not proof of a migration defect. A PASS applies onl
 Requirements: CMake 3.16+, a C17 compiler, and Python 3.10+.
 
 ```bash
-cmake -S . -B build -DVERITY_BUILD_TESTS=ON
+cmake -S . -B build -DMIGRAVEN_BUILD_TESTS=ON
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ```
@@ -46,7 +46,7 @@ The suite covers the C core, CLI, CSV edge cases, HTML escaping, evidence integr
 python tools/demo.py
 ```
 
-The script uses bundled synthetic records and writes `verity-demo-output/` with:
+The script uses bundled synthetic records and writes `migraven-demo-output/` with:
 
 | File | Purpose |
 |---|---|
@@ -59,15 +59,15 @@ It then verifies the manifest and prints the output paths. No customer data is u
 If the executable is outside the default build location, pass it explicitly:
 
 ```bash
-python tools/demo.py --binary build/Release/verity.exe
+python tools/demo.py --binary build/Release/migraven.exe
 ```
 
 ## Direct comparison
 
 ```bash
-./build/verity inspect examples/migration_source.csv
+./build/migraven inspect examples/migration_source.csv
 
-./build/verity compare \
+./build/migraven compare \
   --key record_id \
   --field account_status \
   examples/migration_source.csv \
@@ -77,7 +77,7 @@ python tools/demo.py --binary build/Release/verity.exe
 For JSONL, specify the format:
 
 ```bash
-./build/verity compare --format jsonl \
+./build/migraven compare --format jsonl \
   --key record_id --field account_status \
   examples/migration_source.jsonl examples/migration_target.jsonl
 ```
@@ -87,7 +87,7 @@ JSONL records must be flat objects with matching property names; property order 
 To render a saved JSON result as HTML:
 
 ```bash
-./build/verity compare --key record_id --field account_status \
+./build/migraven compare --key record_id --field account_status \
   examples/migration_source.csv examples/migration_target.csv > result.json
 
 python tools/render_report.py result.json --output review.html
@@ -111,21 +111,21 @@ python tools/evidence.py verify evidence.json
 
 ## Build a local release bundle
 
-After building Verity, create a ZIP containing the executable, documentation, synthetic examples, demo tools and generated demo evidence:
+After building Migraven, create a ZIP containing the executable, documentation, synthetic examples, demo tools and generated demo evidence:
 
 ```bash
 python tools/package_release.py \
-  --binary build/verity \
+  --binary build/migraven \
   --version 0.1.0 \
   --platform local \
   --output-dir dist
 ```
 
-On Windows, use `--binary build/Release/verity.exe`. The packager creates a ZIP and a matching SHA-256 checksum file. The package-validation workflow tests this process on all three desktop platforms.
+On Windows, use `--binary build/Release/migraven.exe`. The packager creates a ZIP and a matching SHA-256 checksum file. The package-validation workflow tests this process on all three desktop platforms.
 
 ## Output contract
 
-The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
+The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. The result also records the source and target filenames and parsed row counts (not full local paths). Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
 
 ## Current limits
 

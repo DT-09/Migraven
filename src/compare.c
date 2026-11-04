@@ -1,4 +1,4 @@
-#include "verity/verity.h"
+#include "migraven/migraven.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -12,14 +12,14 @@ static void set_error(char *dst, size_t n, const char *msg) {
     if (dst && n) (void)snprintf(dst, n, "%s", msg);
 }
 
-static size_t column_index(const VerityTable *table, const char *name) {
+static size_t column_index(const MigravenTable *table, const char *name) {
     size_t i;
     for (i = 0; i < table->header_count; ++i)
         if (strcmp(table->headers[i], name) == 0) return i;
     return (size_t)-1;
 }
 
-static const char *cell(const VerityRow *row, size_t index) {
+static const char *cell(const MigravenRow *row, size_t index) {
     return index < row->cell_count ? row->cells[index] : "";
 }
 
@@ -49,7 +49,7 @@ static size_t find_key(const KeyEntry *entries, size_t count, const char *key) {
 }
 
 static int validate_unique_keys(KeyEntry *entries, size_t count,
-                                const VerityTable *table, size_t key_column,
+                                const MigravenTable *table, size_t key_column,
                                 const char *side, char *error, size_t error_size) {
     size_t i;
     for (i = 0; i < count; ++i) {
@@ -72,14 +72,20 @@ static int validate_unique_keys(KeyEntry *entries, size_t count,
     return 1;
 }
 
-static int add_finding(VerityReport *report, const char *key, const char *left,
+static int add_finding(MigravenReport *report, const char *key, const char *left,
                        const char *right, size_t left_row, size_t right_row,
-                       VerityStatus status) {
-    VerityFinding *next = (VerityFinding *)realloc(
-        report->findings, (report->finding_count + 1) * sizeof(*next));
-    VerityFinding *finding;
-    if (!next) return 0;
-    report->findings = next;
+                       MigravenStatus status) {
+    MigravenFinding *finding;
+    if (report->finding_count == report->finding_capacity) {
+        size_t next_capacity = report->finding_capacity ? report->finding_capacity * 2 : 16;
+        MigravenFinding *next;
+        if (next_capacity < report->finding_capacity ||
+            next_capacity > (size_t)-1 / sizeof(*next)) return 0;
+        next = (MigravenFinding *)realloc(report->findings, next_capacity * sizeof(*next));
+        if (!next) return 0;
+        report->findings = next;
+        report->finding_capacity = next_capacity;
+    }
     finding = &report->findings[report->finding_count];
     memset(finding, 0, sizeof(*finding));
     finding->key = copy_string(key);
@@ -89,6 +95,7 @@ static int add_finding(VerityReport *report, const char *key, const char *left,
         free(finding->key);
         free(finding->left_value);
         free(finding->right_value);
+        memset(finding, 0, sizeof(*finding));
         return 0;
     }
     finding->left_row = left_row;
@@ -98,7 +105,7 @@ static int add_finding(VerityReport *report, const char *key, const char *left,
     return 1;
 }
 
-void verity_report_free(VerityReport *report) {
+void migraven_report_free(MigravenReport *report) {
     size_t i;
     if (!report) return;
     for (i = 0; i < report->finding_count; ++i) {
@@ -110,9 +117,9 @@ void verity_report_free(VerityReport *report) {
     memset(report, 0, sizeof(*report));
 }
 
-int verity_compare(const VerityTable *left, const VerityTable *right,
+int migraven_compare(const MigravenTable *left, const MigravenTable *right,
                    const char *key_name, const char *value_name,
-                   VerityReport *out, char *error, size_t error_size) {
+                   MigravenReport *out, char *error, size_t error_size) {
     size_t lk, lv, rk, rv, i, j;
     KeyEntry *left_index = NULL, *right_index = NULL;
     unsigned char *seen = NULL;
@@ -160,7 +167,7 @@ int verity_compare(const VerityTable *left, const VerityTable *right,
         if (match == (size_t)-1) {
             out->left_only_count++;
             if (!add_finding(out, key, cell(&left->rows[i], lv), "",
-                             left->rows[i].source_row, 0, VERITY_INDETERMINATE)) {
+                             left->rows[i].source_row, 0, MIGRAVEN_INDETERMINATE)) {
                 set_error(error, error_size, "Out of memory");
                 goto fail;
             }
@@ -170,7 +177,7 @@ int verity_compare(const VerityTable *left, const VerityTable *right,
             if (strcmp(cell(&left->rows[i], lv), cell(&right->rows[match], rv)) != 0 &&
                 !add_finding(out, key, cell(&left->rows[i], lv), cell(&right->rows[match], rv),
                              left->rows[i].source_row, right->rows[match].source_row,
-                             VERITY_FAIL)) {
+                             MIGRAVEN_FAIL)) {
                 set_error(error, error_size, "Out of memory");
                 goto fail;
             }
@@ -182,7 +189,7 @@ int verity_compare(const VerityTable *left, const VerityTable *right,
             out->right_only_count++;
             if (!add_finding(out, cell(&right->rows[j], rk), "",
                              cell(&right->rows[j], rv), 0,
-                             right->rows[j].source_row, VERITY_INDETERMINATE)) {
+                             right->rows[j].source_row, MIGRAVEN_INDETERMINATE)) {
                 set_error(error, error_size, "Out of memory");
                 goto fail;
             }
@@ -198,6 +205,6 @@ fail:
     free(left_index);
     free(right_index);
     free(seen);
-    verity_report_free(out);
+    migraven_report_free(out);
     return 0;
 }

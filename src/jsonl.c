@@ -1,4 +1,4 @@
-#include "verity/verity.h"
+#include "migraven/migraven.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -291,14 +291,14 @@ invalid:
     return 0;
 }
 
-static void free_row(VerityRow *row) {
+static void free_row(MigravenRow *row) {
     size_t i;
     for (i = 0; i < row->cell_count; ++i) free(row->cells[i]);
     free(row->cells);
     memset(row, 0, sizeof(*row));
 }
 
-int verity_jsonl_read(const char *path, VerityTable *out,
+int migraven_jsonl_read(const char *path, MigravenTable *out,
                       char *error, size_t error_size) {
     FILE *file;
     long file_size;
@@ -343,8 +343,8 @@ int verity_jsonl_read(const char *path, VerityTable *out,
     while (position < length) {
         size_t start = position, line_length, count = 0, i;
         char **keys = NULL, **values = NULL;
-        VerityRow row = {0};
-        VerityRow *next_rows;
+        MigravenRow row = {0};
+        MigravenRow *next_rows;
 
         while (position < length && buffer[position] != '\n') position++;
         line_length = position - start;
@@ -390,7 +390,7 @@ int verity_jsonl_read(const char *path, VerityTable *out,
         row.cell_count = count;
         row.source_row = line_number;
         values = NULL;
-        next_rows = (VerityRow *)realloc(
+        next_rows = (MigravenRow *)realloc(
             out->rows, (out->row_count + 1) * sizeof(*next_rows));
         if (!next_rows) {
             set_error(error, error_size, "Out of memory");
@@ -419,6 +419,6 @@ row_error:
 
 cleanup:
     free(buffer);
-    if (!success) verity_table_free(out);
+    if (!success) migraven_table_free(out);
     return success;
 }

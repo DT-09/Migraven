@@ -9,6 +9,10 @@ REPORT = {
     "status": "REVIEW",
     "key": "record_id",
     "format": "csv",
+    "inputs": {
+        "source": {"file": "legacy.csv", "rows": 18},
+        "target": {"file": "new.csv", "rows": 18},
+    },
     "checks": [{
         "field": "account_status",
         "summary": {"matched": "<img src=x onerror=alert(2)>", "left_only": 0, "right_only": 0, "exceptions": 1},
@@ -23,7 +27,7 @@ REPORT = {
     }],
 }
 
-with tempfile.TemporaryDirectory(prefix="verity report ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven report ") as directory:
     root = pathlib.Path(directory)
     source = root / "result.json"
     target = root / "report.html"
@@ -36,6 +40,9 @@ with tempfile.TemporaryDirectory(prefix="verity report ") as directory:
     html = target.read_text(encoding="utf-8")
     assert "Migration verification report" in html
     assert "INACTIVE" in html
+    assert "legacy.csv" in html
+    assert "new.csv" in html
+    assert "18 rows" in html
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
     assert "<script>alert(1)</script>" not in html
     assert "&lt;img src=x onerror=alert(2)&gt;" in html
@@ -48,5 +55,19 @@ with tempfile.TemporaryDirectory(prefix="verity report ") as directory:
         text=True, capture_output=True, check=False,
     )
     assert rejected.returncode == 2
+
+    malformed = root / "malformed.json"
+    malformed.write_text(
+        json.dumps({"status": "PASS", "checks": [{
+            "field": "amount", "summary": [], "findings": []
+        }]}),
+        encoding="utf-8",
+    )
+    malformed_result = subprocess.run(
+        [sys.executable, str(SCRIPT), str(malformed)],
+        text=True, capture_output=True, check=False,
+    )
+    assert malformed_result.returncode == 2
+    assert "Invalid summary object" in malformed_result.stderr
 
 print("all report renderer tests passed")

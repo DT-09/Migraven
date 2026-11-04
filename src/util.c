@@ -1,9 +1,9 @@
-#include "verity/verity.h"
+#include "migraven/migraven.h"
 #include <stdio.h>
-const char *verity_status_name(VerityStatus s) {
-    switch(s) { case VERITY_PASS:return "PASS"; case VERITY_FAIL:return "FAIL"; case VERITY_INDETERMINATE:return "INDETERMINATE"; case VERITY_ERROR:return "ERROR"; default:return "ERROR"; }
+const char *migraven_status_name(MigravenStatus s) {
+    switch(s) { case MIGRAVEN_PASS:return "PASS"; case MIGRAVEN_FAIL:return "FAIL"; case MIGRAVEN_INDETERMINATE:return "INDETERMINATE"; case MIGRAVEN_ERROR:return "ERROR"; default:return "ERROR"; }
 }
-void verity_json_string(const char *value) {
+void migraven_json_string(const char *value) {
     const unsigned char *p=(const unsigned char *)(value?value:"");
     putchar('"');
     while(*p) {

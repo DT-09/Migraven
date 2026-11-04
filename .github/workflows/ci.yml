@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DVERITY_BUILD_TESTS=ON
+        run: cmake -S . -B build -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DMIGRAVEN_BUILD_TESTS=ON
       - name: Build
         run: cmake --build build --parallel
       - name: Test
