@@ -46,3 +46,8 @@ A maximum of 32 distinct fields is accepted. Duplicate --field arguments are rej
 - 2: invalid arguments, unreadable input, malformed input or failed comparison.
 
 A report with findings is still a successful execution and exits with code 0. Consumers must inspect the JSON status and per-field summaries rather than relying only on the process exit code.
+
+
+## Result provenance
+
+Comparison JSON includes the source and target filenames and parsed row counts. It deliberately records filenames rather than full local paths, so reports do not expose workstation directory structures. Findings retain source and target row references for review.
