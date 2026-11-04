@@ -56,4 +56,18 @@ with tempfile.TemporaryDirectory(prefix="migraven report ") as directory:
     )
     assert rejected.returncode == 2
 
+    malformed = root / "malformed.json"
+    malformed.write_text(
+        json.dumps({"status": "PASS", "checks": [{
+            "field": "amount", "summary": [], "findings": []
+        }]}),
+        encoding="utf-8",
+    )
+    malformed_result = subprocess.run(
+        [sys.executable, str(SCRIPT), str(malformed)],
+        text=True, capture_output=True, check=False,
+    )
+    assert malformed_result.returncode == 2
+    assert "Invalid summary object" in malformed_result.stderr
+
 print("all report renderer tests passed")
