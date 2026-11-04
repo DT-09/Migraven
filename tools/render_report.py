@@ -40,8 +40,14 @@ def render(report):
         if not isinstance(check, dict):
             raise ValueError("Invalid check entry")
         field = esc(check.get("field", ""))
-        summary = check.get("summary") or {}
-        findings = check.get("findings") or []
+        summary = check.get("summary")
+        findings = check.get("findings")
+        if not isinstance(summary, dict):
+            raise ValueError("Invalid summary object in check entry")
+        if not isinstance(findings, list):
+            raise ValueError("Invalid findings array in check entry")
+        if any(not isinstance(finding, dict) for finding in findings):
+            raise ValueError("Invalid finding entry")
         metrics = "".join(
             f'<div class="metric"><span>{label}</span><strong>{esc(summary.get(key, 0))}</strong></div>'
             for key, label in (
