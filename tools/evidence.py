@@ -43,6 +43,27 @@ def create(args: argparse.Namespace) -> int:
     right = Path(args.right).resolve()
     report = Path(args.report).resolve()
 
+    if manifest_path in {left, right, report}:
+        raise ValueError("Manifest output must not overwrite an input or comparison report")
+    if len(set(args.field)) != len(args.field):
+        raise ValueError("Duplicate comparison fields are not allowed")
+    if not args.key or not args.field:
+        raise ValueError("A comparison key and at least one field are required")
+
+    try:
+        report_data = json.loads(report.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Cannot read comparison report: {exc}") from exc
+    if not isinstance(report_data, dict) or report_data.get("status") not in {"PASS", "REVIEW"}:
+        raise ValueError("Report is not a valid Verity comparison result")
+    if report_data.get("key") != args.key or report_data.get("format") != args.format:
+        raise ValueError("Manifest key/format do not match the comparison report")
+    checks = report_data.get("checks")
+    if not isinstance(checks, list) or any(not isinstance(item, dict) for item in checks):
+        raise ValueError("Report contains an invalid checks array")
+    if [item.get("field") for item in checks] != args.field:
+        raise ValueError("Manifest fields do not match the comparison report")
+
     for label, path in (("left input", left), ("right input", right), ("report", report)):
         if not path.is_file():
             raise ValueError(f"{label} is not a readable regular file: {path}")
@@ -56,9 +77,7 @@ def create(args: argparse.Namespace) -> int:
             "size_bytes": size,
         }
 
-    fields = list(dict.fromkeys(args.field))
-    if not args.key or not fields:
-        raise ValueError("A comparison key and at least one field are required")
+    fields = list(args.field)
 
     manifest = {
         "schema": SCHEMA,
