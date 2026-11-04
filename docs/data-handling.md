@@ -8,7 +8,7 @@ This document describes the current product's technical boundaries. It is not a 
 - The HTML renderer and evidence-manifest helper are local Python scripts using the Python standard library.
 - The documented workflow does not require a hosted Verity account or a Verity-operated data service.
 - The comparison output can contain source values, target values, record keys and row references. Treat the output as sensitive if the input is sensitive.
-- The SHA-256 manifest records file paths, hashes and sizes. It does not encrypt data or establish who created the manifest.
+- The SHA-256 manifest records file paths, hashes and sizes. Paths are relative when possible; on Windows, files on different drive letters require an absolute local path, which is not portable to another machine. The manifest does not encrypt data or establish who created it.
 
 ## First evaluation rule
 
