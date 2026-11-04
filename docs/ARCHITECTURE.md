@@ -37,11 +37,14 @@ For each field comparison, sorted key indexes provide O((n + m) log(n + m)) inde
 
 A report records observations made from the supplied files under explicit comparison rules. It does not establish that the source exports were complete, authentic, correctly extracted, or semantically equivalent. The `tools/evidence.py` utility creates a versioned SHA-256 manifest binding both input files and the JSON report, along with format, key, fields, semantics, tool version and timestamp. The verifier re-hashes all three files and checks byte sizes. The manifest is unsigned: it detects changes relative to the recorded manifest but does not establish author identity or protect against replacement of the manifest itself. Trusted storage or a digital signature is required for stronger provenance.
 
-## Next engineering gates
+## Product website
 
-1. Typed canonical records with explicit type and normalization policies.
-2. Versioned rule registry and schema mapping.
-3. SHA-256 input/output evidence manifest and deterministic report serialization.
-4. Python bindings and stable shared-library ABI.
-5. Fuzzing, sanitizer runs, memory/large-file tests and benchmark suite.
-6. Independent review of security and data-handling claims before production use.
+The static website in `website/` is a separate presentation layer. It describes only implemented CLI behavior and documented evaluation boundaries. It does not process customer files or imply that the CLI is a hosted service. Cloudflare Pages can serve the directory as a static site with no build step.
+
+## Remaining engineering gates
+
+1. Define explicit typed-value and normalization policies only when a buyer requires them; do not silently alter exact-string semantics.
+2. Add representative large-file, memory-limit and performance tests before publishing throughput guidance.
+3. Add fuzzing and sanitizer coverage for CSV, JSONL and report parsing.
+4. Evaluate signed manifests and deterministic report serialization if stronger chain-of-custody requirements emerge.
+5. Complete independent security and data-handling review before making production-assurance claims.
