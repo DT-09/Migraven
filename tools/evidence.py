@@ -27,7 +27,16 @@ def sha256_file(path: Path) -> tuple[str, int]:
 
 
 def stored_path(path: Path, manifest_dir: Path) -> str:
-    return os.path.relpath(path.resolve(), manifest_dir.resolve()).replace(os.sep, "/")
+    """Prefer portable relative paths; use absolute paths across Windows drives."""
+    resolved_path = path.resolve()
+    resolved_manifest_dir = manifest_dir.resolve()
+    try:
+        relative = os.path.relpath(resolved_path, resolved_manifest_dir)
+    except ValueError:
+        # Windows cannot express a relative path between different drive letters.
+        # Absolute fallback keeps the manifest verifiable on the originating host.
+        return resolved_path.as_posix()
+    return relative.replace(os.sep, "/")
 
 
 def create(args: argparse.Namespace) -> int:
@@ -67,7 +76,8 @@ def create(args: argparse.Namespace) -> int:
         "files": files,
         "integrity_note": (
             "SHA-256 detects changes relative to this manifest. This manifest is not "
-            "digitally signed; authenticity requires a trusted external copy or signature."
+            "digitally signed; authenticity requires a trusted external copy or signature. "
+            "Paths may be absolute when files are on different Windows drives."
         ),
     }
 
@@ -102,17 +112,17 @@ def verify(args: argparse.Namespace) -> int:
         record = files[label]
         if not isinstance(record, dict):
             raise ValueError(f"Invalid {label} file record")
-        relative = record.get("path")
+        recorded_path = record.get("path")
         expected_hash = record.get("sha256")
         expected_size = record.get("size_bytes")
-        if not isinstance(relative, str) or not relative:
+        if not isinstance(recorded_path, str) or not recorded_path:
             raise ValueError(f"Invalid path for {label}")
         if not isinstance(expected_hash, str) or len(expected_hash) != 64:
             raise ValueError(f"Invalid SHA-256 value for {label}")
         if not isinstance(expected_size, int) or expected_size < 0:
             raise ValueError(f"Invalid size for {label}")
 
-        path = (manifest_path.parent / relative).resolve()
+        path = (manifest_path.parent / recorded_path).resolve()
         try:
             actual_hash, actual_size = sha256_file(path)
             status = "PASS" if actual_hash == expected_hash and actual_size == expected_size else "FAIL"
