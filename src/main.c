@@ -171,7 +171,7 @@ static int compare_cmd(int argc, char **argv) {
     for (i = 0; i < field_count; ++i) migraven_report_free(&reports[i]);
     migraven_table_free(&a);
     migraven_table_free(&b);
-    return 0;
+    return review && strict ? 1 : 0;
 }
 
 int main(int argc, char **argv) {
