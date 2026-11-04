@@ -4,29 +4,29 @@
 
 CSV is the default:
 
-    verity inspect source.csv
+    migraven inspect source.csv
 
 JSONL must be selected explicitly:
 
-    verity inspect --format jsonl source.jsonl
+    migraven inspect --format jsonl source.jsonl
 
 The command returns the input path, format, column names and data-row count.
 
 ## Compare
 
-    verity compare --key record_id --field amount source.csv target.csv
+    migraven compare --key record_id --field amount source.csv target.csv
 
 The key must be non-empty and unique in both inputs. Each selected field is compared using exact string equality.
 
 For JSONL:
 
-    verity compare --format jsonl --key record_id --field amount source.jsonl target.jsonl
+    migraven compare --format jsonl --key record_id --field amount source.jsonl target.jsonl
 
 JSONL input is a sequence of flat JSON objects. Every object must contain the same property names; property order may differ. Supported values are strings, numbers, booleans and null. Nested arrays and objects are rejected.
 
 Repeat --field to compare several columns in one invocation:
 
-    verity compare --key customer_id \
+    migraven compare --key customer_id \
       --field account_status \
       --field region \
       --field credit_limit \
