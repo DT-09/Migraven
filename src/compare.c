@@ -75,11 +75,17 @@ static int validate_unique_keys(KeyEntry *entries, size_t count,
 static int add_finding(MigravenReport *report, const char *key, const char *left,
                        const char *right, size_t left_row, size_t right_row,
                        MigravenStatus status) {
-    MigravenFinding *next = (MigravenFinding *)realloc(
-        report->findings, (report->finding_count + 1) * sizeof(*next));
     MigravenFinding *finding;
-    if (!next) return 0;
-    report->findings = next;
+    if (report->finding_count == report->finding_capacity) {
+        size_t next_capacity = report->finding_capacity ? report->finding_capacity * 2 : 16;
+        MigravenFinding *next;
+        if (next_capacity < report->finding_capacity ||
+            next_capacity > (size_t)-1 / sizeof(*next)) return 0;
+        next = (MigravenFinding *)realloc(report->findings, next_capacity * sizeof(*next));
+        if (!next) return 0;
+        report->findings = next;
+        report->finding_capacity = next_capacity;
+    }
     finding = &report->findings[report->finding_count];
     memset(finding, 0, sizeof(*finding));
     finding->key = copy_string(key);
@@ -89,6 +95,7 @@ static int add_finding(MigravenReport *report, const char *key, const char *left
         free(finding->key);
         free(finding->left_value);
         free(finding->right_value);
+        memset(finding, 0, sizeof(*finding));
         return 0;
     }
     finding->left_row = left_row;
