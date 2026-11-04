@@ -27,7 +27,13 @@ def sha256_file(path: Path) -> tuple[str, int]:
 
 
 def stored_path(path: Path, manifest_dir: Path) -> str:
-    return os.path.relpath(path.resolve(), manifest_dir.resolve()).replace(os.sep, "/")
+    resolved = path.resolve()
+    try:
+        return os.path.relpath(resolved, manifest_dir.resolve()).replace(os.sep, "/")
+    except ValueError:
+        # Windows cannot express a relative path across different drive letters.
+        # Preserve a usable local reference and make its non-portability explicit.
+        return str(resolved)
 
 
 def create(args: argparse.Namespace) -> int:
@@ -112,7 +118,8 @@ def verify(args: argparse.Namespace) -> int:
         if not isinstance(expected_size, int) or expected_size < 0:
             raise ValueError(f"Invalid size for {label}")
 
-        path = (manifest_path.parent / relative).resolve()
+        recorded_path = Path(relative)
+        path = recorded_path.resolve() if recorded_path.is_absolute() else (manifest_path.parent / recorded_path).resolve()
         try:
             actual_hash, actual_size = sha256_file(path)
             status = "PASS" if actual_hash == expected_hash and actual_size == expected_size else "FAIL"
