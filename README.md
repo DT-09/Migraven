@@ -125,7 +125,7 @@ On Windows, use `--binary build/Release/migraven.exe`. The packager creates a ZI
 
 ## Output contract
 
-The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
+The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. The result also records the source and target filenames and parsed row counts (not full local paths). Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
 
 ## Current limits
 
