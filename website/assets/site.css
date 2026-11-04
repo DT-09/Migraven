@@ -852,3 +852,39 @@ a {
 }
 
 }
+
+
+/* Buyer FAQ */
+.faq-section details {
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+}
+.faq-section details:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+.faq-section summary {
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  padding-right: 34px;
+  color: var(--ink);
+  font: 500 19px/1.35 var(--serif);
+}
+.faq-section summary::-webkit-details-marker { display: none; }
+.faq-section summary::after {
+  content: "+";
+  position: absolute;
+  right: 4px;
+  top: -3px;
+  color: var(--brass);
+  font: 22px var(--mono);
+}
+.faq-section details[open] summary::after { content: "−"; }
+.faq-section details p {
+  max-width: 790px;
+  margin: 13px 42px 2px 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.faq-links { display:flex; flex-wrap:wrap; gap:24px; margin-top:30px; }
