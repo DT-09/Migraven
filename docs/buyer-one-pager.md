@@ -1,8 +1,8 @@
-# Verity — Migration Export Verification Evaluation
+# Migraven — Migration Export Verification Evaluation
 
 ## Check what changed between source and target exports before sign-off.
 
-Verity compares agreed CSV or flat-object JSONL exports by a unique record key. It checks selected fields, identifies mismatches and missing-side records, and produces a reviewable evidence pack with source-row references.
+Migraven compares agreed CSV or flat-object JSONL exports by a unique record key. It checks selected fields, identifies mismatches and missing-side records, and produces a reviewable evidence pack with source-row references.
 
 ### Designed for
 
@@ -25,9 +25,9 @@ ERP and CRM implementation consultancies, migration delivery leads and data QA t
 
 A bounded, reproducible review package—not a vague assessment deck. The buyer can inspect the field-level findings, trace them to source rows, and decide which differences require investigation.
 
-### What Verity does not claim
+### What Migraven does not claim
 
-Verity does not certify a migration, prove business correctness, test transformation logic, normalize dates or numbers, map schemas, connect directly to production systems, or replace user acceptance testing. A finding is not automatically a defect. A PASS applies only to the configured key and fields.
+Migraven does not certify a migration, prove business correctness, test transformation logic, normalize dates or numbers, map schemas, connect directly to production systems, or replace user acceptance testing. A finding is not automatically a defect. A PASS applies only to the configured key and fields.
 
 ### Evaluation process
 
