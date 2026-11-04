@@ -1,4 +1,4 @@
-# Verity — data handling and evaluation boundaries
+# Migraven — data handling and evaluation boundaries
 
 This document describes the current product's technical boundaries. It is not a security certification, privacy notice, data-processing agreement or legal contract.
 
@@ -6,7 +6,7 @@ This document describes the current product's technical boundaries. It is not a 
 
 - The comparison executable reads local CSV or flat-object JSONL files.
 - The HTML renderer and evidence-manifest helper are local Python scripts using the Python standard library.
-- The documented workflow does not require a hosted Verity account or a Verity-operated data service.
+- The documented workflow does not require a hosted Migraven account or a Migraven-operated data service.
 - The comparison output can contain source values, target values, record keys and row references. Treat the output as sensitive if the input is sensitive.
 - The SHA-256 manifest records file paths, hashes and sizes. Paths are relative when possible; on Windows, files on different drive letters require an absolute local path, which is not portable to another machine. The manifest does not encrypt data or establish who created it.
 
@@ -29,7 +29,7 @@ If these points cannot be agreed, use synthetic data only.
 ## Current security limitations
 
 - No independent security assessment or certification.
-- No encryption-at-rest feature inside Verity.
+- No encryption-at-rest feature inside Migraven.
 - No role-based access control or multi-user workspace.
 - No built-in secure file-transfer service.
 - No signed evidence manifests.
@@ -37,7 +37,7 @@ If these points cannot be agreed, use synthetic data only.
 - No formal audit log of operator actions.
 - No guarantee that a buyer's workstation or transfer channel is secure.
 
-The buyer remains responsible for its own authorization, endpoint security, backup, access control and regulatory obligations. Do not represent Verity as certified, compliant or production-approved.
+The buyer remains responsible for its own authorization, endpoint security, backup, access control and regulatory obligations. Do not represent Migraven as certified, compliant or production-approved.
 
 ## Output handling
 
