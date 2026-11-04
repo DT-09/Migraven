@@ -78,6 +78,19 @@ int verity_csv_read(const char *path, VerityTable *out, char *error, size_t erro
     }
     fclose(fp);
     buf[len] = '\0';
+
+    /* CSV is text input: reject NUL bytes rather than silently truncating C strings. */
+    if (memchr(buf, '\0', len) != NULL) {
+        free(buf);
+        set_error(error, error_size, "CSV contains a NUL byte");
+        return 0;
+    }
+
+    /* Excel commonly prefixes UTF-8 CSV exports with a BOM. */
+    if (len >= 3 && (unsigned char)buf[0] == 0xefU &&
+        (unsigned char)buf[1] == 0xbbU && (unsigned char)buf[2] == 0xbfU)
+        i = 3;
+
     field = (char *)malloc(field_cap);
     if (!field) { free(buf); set_error(error, error_size, "Out of memory"); return 0; }
 
