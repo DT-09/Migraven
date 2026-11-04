@@ -83,7 +83,9 @@ static int compare_cmd(int argc, char **argv) {
     int arg, strict = 0, review = 0;
 
     for (arg = 2; arg < argc; ++arg) {
-        if (strcmp(argv[arg], "--strict") == 0) {\n            strict = 1;\n        } else if (strcmp(argv[arg], "--format") == 0 && arg + 1 < argc) {
+        if (strcmp(argv[arg], "--strict") == 0) {
+            strict = 1;
+        } else if (strcmp(argv[arg], "--format") == 0 && arg + 1 < argc) {
             format = argv[++arg];
             if (strcmp(format, "csv") != 0 && strcmp(format, "jsonl") != 0) {
                 fprintf(stderr, "migraven: format must be csv or jsonl\n");
