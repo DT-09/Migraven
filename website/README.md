@@ -8,6 +8,7 @@ A static, multi-page product website. It is intentionally separate from the C17 
 - `product.html` — current capabilities, deliverables and boundaries
 - `method.html` — execution semantics, statuses and evidence limits
 - `evaluation.html` — bounded evaluation scope and safe-data requirements
+- `faq.html` — buyer questions on scope, evidence, security and evaluation boundaries
 
 ## Local preview
 

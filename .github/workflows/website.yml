@@ -1,0 +1,26 @@
+name: Website validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "tests/test_website.py"
+      - ".github/workflows/website.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "tests/test_website.py"
+      - ".github/workflows/website.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate pages, links and assets
+        run: python tests/test_website.py
