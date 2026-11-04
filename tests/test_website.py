@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "website"
-PAGES = ("index.html", "product.html", "method.html", "evaluation.html")
+PAGES = ("index.html", "product.html", "method.html", "evaluation.html", "faq.html")
 
 
 class PageParser(HTMLParser):
