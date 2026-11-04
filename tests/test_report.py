@@ -23,7 +23,7 @@ REPORT = {
     }],
 }
 
-with tempfile.TemporaryDirectory(prefix="verity report ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven report ") as directory:
     root = pathlib.Path(directory)
     source = root / "result.json"
     target = root / "report.html"
