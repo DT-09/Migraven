@@ -10,6 +10,7 @@ static void usage(void) {
          "  migraven inspect [--format csv|jsonl] <file>\n"
          "  migraven compare [--strict] --key <column> --field <column> [--field <column> ...] [--format csv|jsonl] <left> <right>\n\n"
          "Each --field is checked independently against the same unique key.\n"
+         "Use --strict to return exit code 1 when findings exist.\\n"
          "CSV and flat-object JSONL are supported. Output is JSON on stdout.");
 }
 
