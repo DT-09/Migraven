@@ -9,6 +9,10 @@ REPORT = {
     "status": "REVIEW",
     "key": "record_id",
     "format": "csv",
+    "inputs": {
+        "source": {"file": "legacy.csv", "rows": 18},
+        "target": {"file": "new.csv", "rows": 18},
+    },
     "checks": [{
         "field": "account_status",
         "summary": {"matched": "<img src=x onerror=alert(2)>", "left_only": 0, "right_only": 0, "exceptions": 1},
@@ -36,6 +40,9 @@ with tempfile.TemporaryDirectory(prefix="migraven report ") as directory:
     html = target.read_text(encoding="utf-8")
     assert "Migration verification report" in html
     assert "INACTIVE" in html
+    assert "legacy.csv" in html
+    assert "new.csv" in html
+    assert "18 rows" in html
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html
     assert "<script>alert(1)</script>" not in html
     assert "&lt;img src=x onerror=alert(2)&gt;" in html
