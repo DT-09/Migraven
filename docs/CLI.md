@@ -14,7 +14,7 @@ The command returns the input path, format, column names and data-row count.
 
 ## Compare
 
-    migraven compare --key record_id --field amount source.csv target.csv\n\nUse `--strict` when the process should return a non-zero status if findings exist:\n\n    migraven compare --strict --key record_id --field amount source.csv target.csv
+    migraven compare --key record_id --field amount source.csv target.csv\n\nUse `--strict` when findings should return exit code 1:\n\n    migraven compare --strict --key record_id --field amount source.csv target.csv\n\nUse `--strict` when the process should return a non-zero status if findings exist:\n\n    migraven compare --strict --key record_id --field amount source.csv target.csv
 
 The key must be non-empty and unique in both inputs. Each selected field is compared using exact string equality.
 
