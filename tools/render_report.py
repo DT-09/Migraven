@@ -21,6 +21,20 @@ def render(report):
 
     status = report["status"]
     status_class = "pass" if status == "PASS" else "review"
+    input_details = ""
+    inputs = report.get("inputs")
+    if isinstance(inputs, dict):
+        details = []
+        for label in ("source", "target"):
+            entry = inputs.get(label)
+            if isinstance(entry, dict):
+                filename = esc(entry.get("file", "—"))
+                row_count = esc(entry.get("rows", "—"))
+                details.append(
+                    f'<span>{label.title()} export: <strong>{filename}</strong> '
+                    f'· {row_count} rows</span>'
+                )
+        input_details = "".join(details)
     sections = []
     for check in checks:
         if not isinstance(check, dict):
@@ -107,7 +121,8 @@ footer{{margin-top:30px;padding-top:18px;border-top:1px solid var(--line);font-s
 <p><span class="status {status_class}">{status}</span></p>
 <div class="meta"><span>Comparison key: <strong>{esc(report.get("key", ""))}</strong></span>
 <span>Input format: <strong>{esc(report.get("format", "csv")).upper()}</strong></span>
-<span>Field checks: <strong>{len(checks)}</strong></span></div></header>
+<span>Field checks: <strong>{len(checks)}</strong></span></div>
+<div class="meta">{input_details}</div></header>
 {checks_html}
 <footer>Migraven reports observed differences in the supplied exports. A finding is not proof of a migration defect. Review source records, transformation rules and business context before sign-off. A PASS applies only to the selected key and fields; it does not certify the full migration.</footer>
 </main></body></html>"""
