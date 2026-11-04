@@ -133,6 +133,7 @@ The initial offer is a bounded **Migration Export Verification Evaluation**:
 - a review note separating observed differences from unresolved explanations.
 
 See:
+- [Customer quick start](docs/customer-quickstart.md)
 - [Buyer one-pager](docs/buyer-one-pager.md)
 - [Product brief](docs/product-brief.md)
 - [First market and buyer qualification](docs/first-market.md)
