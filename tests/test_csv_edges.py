@@ -18,7 +18,7 @@ def run(left: pathlib.Path, right: pathlib.Path):
     )
 
 
-with tempfile.TemporaryDirectory(prefix="verity csv edges ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven csv edges ") as directory:
     root = pathlib.Path(directory)
     valid = root / "valid.csv"
     valid.write_text("id,value\nA,one\n", encoding="utf-8")
