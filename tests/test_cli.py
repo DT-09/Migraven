@@ -32,6 +32,10 @@ with tempfile.TemporaryDirectory(prefix="migraven cli ") as directory:
     assert report["status"] == "REVIEW"
     assert report["key"] == "id"
     assert report["format"] == "csv"
+    assert report["inputs"] == {
+        "source": {"file": "source data.csv", "rows": 3},
+        "target": {"file": "target data.csv", "rows": 3},
+    }
     assert len(report["checks"]) == 2
     assert report["checks"][0]["summary"] == {
         "matched": 2, "left_only": 1, "right_only": 1, "exceptions": 3
