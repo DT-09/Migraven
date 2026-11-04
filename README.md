@@ -17,11 +17,12 @@ Verity is deliberately narrower than a full migration-testing platform. It does 
 ## What it does
 
 - Reads CSV and flat-object JSONL locally.
+- Accepts a UTF-8 byte-order mark at the start of CSV exports and rejects embedded NUL bytes.
 - Validates headers and row widths.
 - Requires a non-empty, unique comparison key in each input.
 - Compares up to 32 selected fields per run using exact string equality.
 - Reports unequal values and keys present on only one side.
-- Preserves physical source-row references in JSON findings.
+- Preserves input-row references in JSON findings.
 - Produces a self-contained HTML report for human review.
 - Creates a SHA-256 manifest binding the two input files and generated JSON report.
 
@@ -36,6 +37,8 @@ cmake -S . -B build -DVERITY_BUILD_TESTS=ON
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ```
+
+The test suite covers the C core, CLI behavior, CSV edge cases, HTML escaping, evidence-manifest integrity, the end-to-end demo and release packaging. CI builds and tests with GCC, Clang and MSVC across Linux, macOS and Windows.
 
 ## Run the complete demonstration
 
@@ -104,7 +107,21 @@ python tools/evidence.py create \
 python tools/evidence.py verify evidence.json
 ```
 
-**Manifest trust boundary:** the manifest is unsigned. It detects changes relative to the recorded hashes and sizes, but does not prove who created it or prevent replacement of both the manifest and files. It is an integrity aid, not a digital signature or audit certification.
+**Manifest trust boundary:** the manifest is unsigned. It detects changes relative to the recorded hashes and sizes, but does not prove who created it or prevent replacement of both the manifest and files. It is an integrity aid, not a digital signature or audit certification. When files are on separate Windows drives, absolute paths are recorded; those manifests are verifiable on the originating host but are not portable.
+
+## Build a local release bundle
+
+After building Verity, create a ZIP package containing the executable, documentation, synthetic examples, demo tools and generated demo evidence:
+
+```bash
+python tools/package_release.py \
+  --binary build/verity \
+  --version 0.1.0 \
+  --platform local \
+  --output-dir dist
+```
+
+On Windows, use `--binary build/Release/verity.exe`. The packager creates a ZIP and a matching SHA-256 checksum file. Tagged releases are built and tested by the GitHub Actions release workflow.
 
 ## Output contract
 
