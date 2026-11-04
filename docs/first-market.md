@@ -1,4 +1,4 @@
-# Verity — first market
+# Migraven — first market
 
 ## Beachhead
 
@@ -14,7 +14,7 @@ Daily user: migration engineer or data QA analyst.
 
 Before a migration is signed off, compare an agreed source export with the target export and produce a reviewable exception list.
 
-Verity's current supported job:
+Migraven's current supported job:
 - Read two CSV or flat-object JSONL exports locally.
 - Match records by a unique, non-empty key.
 - Compare up to 32 agreed fields per invocation using exact string equality.
@@ -24,7 +24,7 @@ Verity's current supported job:
 
 ## Why this wedge
 
-Large migration-testing platforms already sell broad connectors, workflow automation, transformation testing, dashboards and enterprise reporting. Verity should not pretend to replace them.
+Large migration-testing platforms already sell broad connectors, workflow automation, transformation testing, dashboards and enterprise reporting. Migraven should not pretend to replace them.
 
 The initial wedge is a lightweight, local-first verification utility for a consultancy that needs a transparent, repeatable check on exports without introducing another hosted data platform.
 
@@ -41,7 +41,7 @@ Do not target companies merely because they use data. Target migration delivery 
 
 ## Positioning
 
-**Verity produces local, source-row-linked checks between agreed migration exports.**
+**Migraven produces local, source-row-linked checks between agreed migration exports.**
 
 It is not currently:
 - a database connector or ETL platform;
@@ -53,7 +53,7 @@ It is not currently:
 
 ## Competitive boundary
 
-Products such as QuerySurge and iCEDQ describe broad data-migration testing capabilities, including multiple data sources, reusable rules, workflows and reporting. Verity's current MVP is materially narrower. Compete on a small, inspectable export-verification task and a transparent delivery process—not feature count.
+Products such as QuerySurge and iCEDQ describe broad data-migration testing capabilities, including multiple data sources, reusable rules, workflows and reporting. Migraven's current MVP is materially narrower. Compete on a small, inspectable export-verification task and a transparent delivery process—not feature count.
 
 ## Expansion gate
 
