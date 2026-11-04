@@ -39,6 +39,7 @@ def run(command: list[str]) -> subprocess.CompletedProcess[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", help="Path to the compiled Verity executable")
+    parser.add_argument("--examples-dir", help="Directory containing migration_source.csv and migration_target.csv")
     parser.add_argument(
         "--output", default="verity-demo-output",
         help="Directory for the JSON report, HTML report and evidence manifest",
@@ -50,8 +51,9 @@ def main() -> int:
         output = Path(args.output).resolve()
         output.mkdir(parents=True, exist_ok=True)
 
-        left = ROOT / "examples" / "migration_source.csv"
-        right = ROOT / "examples" / "migration_target.csv"
+        examples = Path(args.examples_dir).resolve() if args.examples_dir else ROOT / "examples"
+        left = examples / "migration_source.csv"
+        right = examples / "migration_target.csv"
         report = output / "comparison.json"
         html_report = output / "review.html"
         manifest = output / "evidence.json"
