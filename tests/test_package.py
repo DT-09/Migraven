@@ -35,10 +35,11 @@ with tempfile.TemporaryDirectory(prefix="verity package ") as temporary:
     actual = hashlib.sha256(archive.read_bytes()).hexdigest()
     assert actual == expected
 
+    executable = "verity.exe" if binary.suffix.lower() == ".exe" else "verity"
     with zipfile.ZipFile(archive) as bundle:
         names = set(bundle.namelist())
         required = {
-            "Verity-test-test-platform/bin/verity",
+            f"Verity-test-test-platform/bin/{executable}",
             "Verity-test-test-platform/README.md",
             "Verity-test-test-platform/docs/customer-quickstart.md",
             "Verity-test-test-platform/tools/evidence.py",
