@@ -1,0 +1,48 @@
+name: Package validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  package:
+    name: Build and package (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+            binary: build/verity
+          - os: windows-latest
+            platform: windows-x64
+            binary: build/Release/verity.exe
+          - os: macos-latest
+            platform: macos
+            binary: build/verity
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Configure
+        run: cmake -S . -B build -DVERITY_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Assemble bundle
+        shell: bash
+        run: |
+          python tools/package_release.py --binary "${{ matrix.binary }}" --version "0.1.0-ci" --platform "${{ matrix.platform }}" --output-dir dist
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: verity-package-${{ matrix.platform }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
