@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integration test for the end-to-end Verity demonstration package."""
+"""Integration test for the end-to-end Migraven demonstration package."""
 
 import json
 from pathlib import Path
