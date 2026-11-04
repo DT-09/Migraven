@@ -1,26 +1,43 @@
 cmake_minimum_required(VERSION 3.16)
 project(verity VERSION 0.1.0 LANGUAGES C)
+
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
 option(VERITY_BUILD_TESTS "Build Verity tests" ON)
-add_library(verity_core STATIC src/csv.c src/jsonl.c src/compare.c src/util.c)
+
+add_library(verity_core STATIC
+  src/csv.c
+  src/jsonl.c
+  src/compare.c
+  src/util.c
+)
 target_include_directories(verity_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-if(MSVC)
-  target_compile_options(verity_core PRIVATE /W4)
-else()
-  target_compile_options(verity_core PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
-endif()
+
 add_executable(verity src/main.c)
 target_link_libraries(verity PRIVATE verity_core)
+
+if(MSVC)
+  target_compile_options(verity_core PRIVATE /W4)
+  target_compile_options(verity PRIVATE /W4)
+else()
+  target_compile_options(verity_core PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+  target_compile_options(verity PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+endif()
+
 if(VERITY_BUILD_TESTS)
   enable_testing()
+  find_package(Python3 3.10 COMPONENTS Interpreter REQUIRED)
+
   add_executable(verity_tests tests/test_core.c)
   target_link_libraries(verity_tests PRIVATE verity_core)
   add_test(NAME verity_core_tests COMMAND verity_tests)
-  find_package(Python3 3.10 COMPONENTS Interpreter REQUIRED)
+
   add_test(NAME verity_cli_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_cli.py $<TARGET_FILE:verity>)
+  add_test(NAME verity_csv_edge_tests
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_csv_edges.py $<TARGET_FILE:verity>)
   add_test(NAME verity_report_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_report.py)
   add_test(NAME verity_evidence_tests
@@ -28,5 +45,6 @@ if(VERITY_BUILD_TESTS)
   add_test(NAME verity_demo_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_demo.py $<TARGET_FILE:verity>)
 endif()
+
 install(TARGETS verity verity_core)
 install(DIRECTORY include/ DESTINATION include)
