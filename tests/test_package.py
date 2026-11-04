@@ -11,7 +11,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 binary = Path(sys.argv[1]).resolve()
 
-with tempfile.TemporaryDirectory(prefix="verity package ") as temporary:
+with tempfile.TemporaryDirectory(prefix="migraven package ") as temporary:
     output = Path(temporary) / "dist"
     subprocess.run(
         [
@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix="verity package ") as temporary:
         text=True,
         capture_output=True,
     )
-    archive = output / "Verity-test-test-platform.zip"
+    archive = output / "Migraven-test-test-platform.zip"
     checksum = output / f"{archive.name}.sha256"
     assert archive.is_file()
     assert checksum.is_file()
@@ -35,17 +35,17 @@ with tempfile.TemporaryDirectory(prefix="verity package ") as temporary:
     actual = hashlib.sha256(archive.read_bytes()).hexdigest()
     assert actual == expected
 
-    executable = "verity.exe" if binary.suffix.lower() == ".exe" else "verity"
+    executable = "migraven.exe" if binary.suffix.lower() == ".exe" else "migraven"
     with zipfile.ZipFile(archive) as bundle:
         names = set(bundle.namelist())
         required = {
-            f"Verity-test-test-platform/bin/{executable}",
-            "Verity-test-test-platform/README.md",
-            "Verity-test-test-platform/docs/customer-quickstart.md",
-            "Verity-test-test-platform/tools/evidence.py",
-            "Verity-test-test-platform/demo-output/comparison.json",
-            "Verity-test-test-platform/demo-output/review.html",
-            "Verity-test-test-platform/demo-output/evidence.json",
+            f"Migraven-test-test-platform/bin/{executable}",
+            "Migraven-test-test-platform/README.md",
+            "Migraven-test-test-platform/docs/customer-quickstart.md",
+            "Migraven-test-test-platform/tools/evidence.py",
+            "Migraven-test-test-platform/demo-output/comparison.json",
+            "Migraven-test-test-platform/demo-output/review.html",
+            "Migraven-test-test-platform/demo-output/evidence.json",
         }
         assert required.issubset(names), required - names
         assert bundle.testzip() is None
