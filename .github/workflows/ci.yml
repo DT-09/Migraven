@@ -1,20 +1,48 @@
-name: C17 CI
+name: Verity CI
+
 on:
   push:
-    branches: [main]
+    branches: [main, "productization/**"]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        compiler: [gcc, clang]
+        include:
+          - name: Ubuntu / GCC
+            os: ubuntu-latest
+            cc: gcc
+          - name: Ubuntu / Clang
+            os: ubuntu-latest
+            cc: clang
+          - name: Windows / MSVC
+            os: windows-latest
+            cc: ""
+          - name: macOS / Clang
+            os: macos-latest
+            cc: clang
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DVERITY_BUILD_TESTS=ON
+        shell: bash
+        run: |
+          if [ "${{ matrix.cc }}" != "" ]; then
+            CC="${{ matrix.cc }}" cmake -S . -B build -DVERITY_BUILD_TESTS=ON
+          else
+            cmake -S . -B build -DVERITY_BUILD_TESTS=ON
+          fi
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --config Release --parallel
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir build -C Release --output-on-failure
