@@ -144,7 +144,6 @@ static int compare_cmd(int argc, char **argv) {
     }
 
     {
-        int review = 0;
         for (i = 0; i < field_count; ++i)
             if (reports[i].finding_count) review = 1;
 
