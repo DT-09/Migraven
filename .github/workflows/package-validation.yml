@@ -16,20 +16,20 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux-x64
-            binary: build/verity
+            binary: build/migraven
           - os: windows-latest
             platform: windows-x64
-            binary: build/Release/verity.exe
+            binary: build/Release/migraven.exe
           - os: macos-latest
             platform: macos
-            binary: build/verity
+            binary: build/migraven
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Configure
-        run: cmake -S . -B build -DVERITY_BUILD_TESTS=ON
+        run: cmake -S . -B build -DMIGRAVEN_BUILD_TESTS=ON
       - name: Build
         run: cmake --build build --config Release --parallel
       - name: Test
@@ -41,7 +41,7 @@ jobs:
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: verity-package-${{ matrix.platform }}
+          name: migraven-package-${{ matrix.platform }}
           path: |
             dist/*.zip
             dist/*.sha256
