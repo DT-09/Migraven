@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run Verity end-to-end against the bundled synthetic migration exports."""
+"""Run Migraven end-to-end against the bundled synthetic migration exports."""
 
 from __future__ import annotations
 
@@ -15,16 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def find_binary(explicit: str | None) -> Path:
     candidates = [Path(explicit)] if explicit else [
-        ROOT / "build" / "verity",
-        ROOT / "build" / "verity.exe",
-        ROOT / "build" / "Release" / "verity.exe",
+        ROOT / "build" / "migraven",
+        ROOT / "build" / "migraven.exe",
+        ROOT / "build" / "Release" / "migraven.exe",
     ]
     for candidate in candidates:
         resolved = candidate.resolve()
         if resolved.is_file():
             return resolved
     raise FileNotFoundError(
-        "Verity executable not found. Build it first with "
+        "Migraven executable not found. Build it first with "
         "'cmake -S . -B build && cmake --build build', or pass --binary."
     )
 
@@ -38,10 +38,10 @@ def run(command: list[str]) -> subprocess.CompletedProcess[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--binary", help="Path to the compiled Verity executable")
+    parser.add_argument("--binary", help="Path to the compiled Migraven executable")
     parser.add_argument("--examples-dir", help="Directory containing migration_source.csv and migration_target.csv")
     parser.add_argument(
-        "--output", default="verity-demo-output",
+        "--output", default="migraven-demo-output",
         help="Directory for the JSON report, HTML report and evidence manifest",
     )
     args = parser.parse_args()
@@ -91,7 +91,7 @@ def main() -> int:
         if verified.get("status") != "VERIFIED":
             raise ValueError("Evidence manifest verification did not pass")
 
-        print("VERITY DEMO COMPLETE")
+        print("MIGRAVEN DEMO COMPLETE")
         print(f"Comparison status: {parsed['status']}")
         print(f"Checks: {len(parsed.get('checks', []))}")
         print(f"Findings: {sum(len(c.get('findings', [])) for c in parsed.get('checks', []))}")
@@ -103,7 +103,7 @@ def main() -> int:
         return 0
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as exc:
         detail = getattr(exc, "stderr", None)
-        print(f"verity-demo: {exc}", file=sys.stderr)
+        print(f"migraven-demo: {exc}", file=sys.stderr)
         if detail:
             print(detail, file=sys.stderr)
         return 2
