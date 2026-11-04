@@ -138,6 +138,14 @@ The CLI emits one JSON object. Top-level status is `PASS` only when all selected
 - No independent security assessment, compliance certification or production approval.
 - No claim that a PASS proves overall migration correctness.
 
+## Product website
+
+The static, multi-page product website is in [website/](website/). It documents the current capabilities, comparison semantics, evidence boundary and proposed evaluation scope.
+
+Preview locally by opening `website/index.html` or serving the `website/` directory. For Cloudflare Pages, use the repository root, leave the build command blank, and set the build output directory to `website`. See [website deployment notes](website/README.md).
+
+The site is informational only. It has no upload endpoint, backend, analytics, tracking pixels or customer-data collection.
+
 ## Paid evaluation
 
 The initial offer is a bounded **Migration Export Verification Evaluation**:
