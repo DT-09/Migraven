@@ -4,12 +4,12 @@ import subprocess
 import sys
 import tempfile
 
-VERITY = sys.argv[1]
+MIGRAVEN = sys.argv[1]
 
 def run(*args):
-    return subprocess.run([VERITY, *args], text=True, capture_output=True, check=False)
+    return subprocess.run([MIGRAVEN, *args], text=True, capture_output=True, check=False)
 
-with tempfile.TemporaryDirectory(prefix="verity cli ") as directory:
+with tempfile.TemporaryDirectory(prefix="migraven cli ") as directory:
     root = pathlib.Path(directory)
     left = root / "source data.csv"
     right = root / "target data.csv"
