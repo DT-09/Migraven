@@ -8,7 +8,7 @@ typedef enum { MIGRAVEN_PASS=0, MIGRAVEN_FAIL=1, MIGRAVEN_INDETERMINATE=2, MIGRA
 typedef struct { char **cells; size_t cell_count; size_t source_row; } MigravenRow;
 typedef struct { char **headers; size_t header_count; MigravenRow *rows; size_t row_count; } MigravenTable;
 typedef struct { char *key; char *left_value; char *right_value; size_t left_row; size_t right_row; MigravenStatus status; } MigravenFinding;
-typedef struct { MigravenFinding *findings; size_t finding_count; size_t matched_count; size_t left_only_count; size_t right_only_count; } MigravenReport;
+typedef struct { MigravenFinding *findings; size_t finding_count; size_t finding_capacity; size_t matched_count; size_t left_only_count; size_t right_only_count; } MigravenReport;
 int migraven_csv_read(const char *path, MigravenTable *out, char *error, size_t error_size);
 int migraven_jsonl_read(const char *path, MigravenTable *out, char *error, size_t error_size);
 void migraven_table_free(MigravenTable *table);
