@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble a tested, self-contained Verity release bundle and SHA-256 checksum."""
+"""Assemble a tested, self-contained Migraven release bundle and SHA-256 checksum."""
 from __future__ import annotations
 import argparse, hashlib, shutil, subprocess, sys, zipfile
 from pathlib import Path
@@ -25,12 +25,12 @@ def main() -> int:
         parser.error(f"compiled executable does not exist: {binary}")
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    name = f"Verity-{args.version}-{args.platform}"
+    name = f"Migraven-{args.version}-{args.platform}"
     stage = output_dir / name
     if stage.exists():
         shutil.rmtree(stage)
     (stage / "bin").mkdir(parents=True)
-    executable_name = "verity.exe" if binary.suffix.lower() == ".exe" else "verity"
+    executable_name = "migraven.exe" if binary.suffix.lower() == ".exe" else "migraven"
     shutil.copy2(binary, stage / "bin" / executable_name)
     shutil.copy2(ROOT / "README.md", stage / "README.md")
     for folder in ("docs", "examples"):
