@@ -45,6 +45,14 @@ static int inspect(const char *path, const char *format) {
     return 0;
 }
 
+static const char *file_name(const char *path) {
+    const char *name = path;
+    const char *cursor;
+    for (cursor = path; *cursor; ++cursor)
+        if (*cursor == '/' || *cursor == '\\') name = cursor + 1;
+    return name;
+}
+
 static void print_findings(const MigravenReport *report) {
     size_t i;
     putchar('[');
@@ -140,7 +148,11 @@ static int compare_cmd(int argc, char **argv) {
         migraven_json_string(key);
         printf(",\"format\":");
         migraven_json_string(format);
-        printf(",\"checks\":[");
+        printf(",\"inputs\":{\"source\":{\"file\":");
+        migraven_json_string(file_name(left));
+        printf(",\"rows\":%zu},\"target\":{\"file\":", a.row_count);
+        migraven_json_string(file_name(right));
+        printf(",\"rows\":%zu}},\"checks\":[", b.row_count);
         for (i = 0; i < field_count; ++i) {
             const MigravenReport *report = &reports[i];
             if (i) putchar(',');
