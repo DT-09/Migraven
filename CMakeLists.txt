@@ -31,6 +31,7 @@ if(MIGRAVEN_BUILD_TESTS)
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_demo.py $<TARGET_FILE:migraven>)
   add_test(NAME migraven_package_tests
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_package.py $<TARGET_FILE:migraven>)
+  add_test(NAME migraven_website_tests COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_website.py)
 endif()
 install(TARGETS migraven migraven_core)
 install(DIRECTORY include/ DESTINATION include)
