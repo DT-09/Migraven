@@ -14,7 +14,11 @@ The command returns the input path, format, column names and data-row count.
 
 ## Compare
 
-    migraven compare --key record_id --field amount source.csv target.csv\n\nUse `--strict` when findings should return exit code 1:\n\n    migraven compare --strict --key record_id --field amount source.csv target.csv\n\nUse `--strict` when the process should return a non-zero status if findings exist:\n\n    migraven compare --strict --key record_id --field amount source.csv target.csv
+    migraven compare --key record_id --field amount source.csv target.csv
+
+Use `--strict` when findings should return exit code 1:
+
+    migraven compare --strict --key record_id --field amount source.csv target.csv
 
 The key must be non-empty and unique in both inputs. Each selected field is compared using exact string equality.
 
@@ -42,10 +46,11 @@ A maximum of 32 distinct fields is accepted. Duplicate --field arguments are rej
 
 ## Exit codes
 
-- 0: command completed, including reports that contain findings.
+- 0: comparison completed with no findings, or findings were reported without `--strict`.
+- 1: findings were generated and `--strict` was supplied. The JSON report is still written to stdout.
 - 2: invalid arguments, unreadable input, malformed input or failed comparison.
 
-A report with findings is still a successful execution and exits with code 0. Consumers must inspect the JSON status and per-field summaries rather than relying only on the process exit code.
+Without `--strict`, findings are a successful report-generation outcome. With `--strict`, Migraven can gate a scripted review pipeline while preserving the full JSON report for inspection.
 
 
 ## Result provenance
