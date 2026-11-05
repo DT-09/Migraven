@@ -16,7 +16,7 @@ int main(void) {
     MigravenReport report = {0};
     char error[256];
 
-    write_file("test_left.csv", "id,amount,note\nA,10,\"widget, small\"\nB,20,\"line \"\"quoted\"\"\"\n");
+    write_file("test_left.csv", "id,amount,note\nA,10,\"widget, small\"\nB,20,\"line \"\"quoted\"\"\"\nD,40,source only\n");
     write_file("test_right.csv", "id,amount\nA,10\nB,25\nC,30\n");
     write_file("test_duplicate.csv", "id,amount\nA,1\nA,2\n");
     write_file("test_duplicate_right.csv", "id,amount\nA,1\nA,2\n");
@@ -25,16 +25,21 @@ int main(void) {
     write_file("test_no_rows.csv", "id,amount\n");
 
     assert(migraven_csv_read("test_left.csv", &a, error, sizeof(error)));
-    assert(a.row_count == 2);
+    assert(a.row_count == 3);
     assert(strcmp(a.rows[0].cells[2], "widget, small") == 0);
     assert(strcmp(a.rows[1].cells[2], "line \"quoted\"") == 0);
     assert(migraven_csv_read("test_right.csv", &b, error, sizeof(error)));
     assert(migraven_compare(&a, &b, "id", "amount", &report, error, sizeof(error)));
     assert(report.matched_count == 2);
+    assert(report.left_only_count == 1);
     assert(report.right_only_count == 1);
-    assert(report.finding_count == 2);
+    assert(report.finding_count == 3);
     assert(strcmp(report.findings[0].key, "B") == 0);
     assert(report.findings[0].status == MIGRAVEN_FAIL);
+    assert(strcmp(report.findings[1].key, "C") == 0);
+    assert(report.findings[1].status == MIGRAVEN_INDETERMINATE);
+    assert(strcmp(report.findings[2].key, "D") == 0);
+    assert(report.findings[2].status == MIGRAVEN_INDETERMINATE);
 
     assert(migraven_csv_read("test_duplicate.csv", &dup, error, sizeof(error)));
     assert(!migraven_compare(&dup, &b, "id", "amount", &report, error, sizeof(error)));
