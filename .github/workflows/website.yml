@@ -24,3 +24,5 @@ jobs:
           python-version: "3.12"
       - name: Validate pages, links and assets
         run: python tests/test_website.py
+      - name: Check browser JavaScript syntax
+        run: node --check website/assets/site.js
