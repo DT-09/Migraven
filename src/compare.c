@@ -36,18 +36,6 @@ static int compare_key_entries(const void *a, const void *b) {
     return strcmp(left->key, right->key);
 }
 
-static size_t find_key(const KeyEntry *entries, size_t count, const char *key) {
-    size_t low = 0, high = count;
-    while (low < high) {
-        size_t middle = low + (high - low) / 2;
-        int order = strcmp(entries[middle].key, key);
-        if (order < 0) low = middle + 1;
-        else if (order > 0) high = middle;
-        else return entries[middle].row_index;
-    }
-    return (size_t)-1;
-}
-
 static int validate_unique_keys(KeyEntry *entries, size_t count,
                                 const MigravenTable *table, size_t key_column,
                                 const char *side, char *error, size_t error_size) {
@@ -120,9 +108,8 @@ void migraven_report_free(MigravenReport *report) {
 int migraven_compare(const MigravenTable *left, const MigravenTable *right,
                    const char *key_name, const char *value_name,
                    MigravenReport *out, char *error, size_t error_size) {
-    size_t lk, lv, rk, rv, i, j;
+    size_t lk, lv, rk, rv, i = 0, j = 0;
     KeyEntry *left_index = NULL, *right_index = NULL;
-    unsigned char *seen = NULL;
 
     if (!left || !right || !out || !key_name || !value_name) {
         set_error(error, error_size, "Invalid comparison arguments");
@@ -142,69 +129,93 @@ int migraven_compare(const MigravenTable *left, const MigravenTable *right,
         set_error(error, error_size, "Both datasets contain no data rows");
         return 0;
     }
-
     if (left->row_count > (size_t)-1 / sizeof(*left_index) ||
         right->row_count > (size_t)-1 / sizeof(*right_index)) {
         set_error(error, error_size, "Dataset is too large to index");
         goto fail;
     }
+
     left_index = (KeyEntry *)malloc((left->row_count ? left->row_count : 1) * sizeof(*left_index));
     right_index = (KeyEntry *)malloc((right->row_count ? right->row_count : 1) * sizeof(*right_index));
-    seen = (unsigned char *)calloc(right->row_count ? right->row_count : 1, 1);
-    if (!left_index || !right_index || !seen) {
+    if (!left_index || !right_index) {
         set_error(error, error_size, "Out of memory");
         goto fail;
     }
-
     if (!validate_unique_keys(left_index, left->row_count, left, lk,
                               "left", error, error_size) ||
         !validate_unique_keys(right_index, right->row_count, right, rk,
                               "right", error, error_size)) goto fail;
 
-    for (i = 0; i < left->row_count; ++i) {
-        const char *key = cell(&left->rows[i], lk);
-        size_t match = find_key(right_index, right->row_count, key);
-        if (match == (size_t)-1) {
+    /*
+     * Both key indexes are sorted. A two-pointer merge join replaces one
+     * binary search per source row and one target-side seen bitmap. Findings
+     * are emitted in key order, independent of the original row ordering.
+     */
+    while (i < left->row_count && j < right->row_count) {
+        const KeyEntry *left_entry = &left_index[i];
+        const KeyEntry *right_entry = &right_index[j];
+        const MigravenRow *left_row = &left->rows[left_entry->row_index];
+        const MigravenRow *right_row = &right->rows[right_entry->row_index];
+        int order = strcmp(left_entry->key, right_entry->key);
+
+        if (order < 0) {
             out->left_only_count++;
-            if (!add_finding(out, key, cell(&left->rows[i], lv), "",
-                             left->rows[i].source_row, 0, MIGRAVEN_INDETERMINATE)) {
+            if (!add_finding(out, left_entry->key, cell(left_row, lv), "",
+                             left_row->source_row, 0, MIGRAVEN_INDETERMINATE)) {
                 set_error(error, error_size, "Out of memory");
                 goto fail;
             }
+            i++;
+        } else if (order > 0) {
+            out->right_only_count++;
+            if (!add_finding(out, right_entry->key, "", cell(right_row, rv), 0,
+                             right_row->source_row, MIGRAVEN_INDETERMINATE)) {
+                set_error(error, error_size, "Out of memory");
+                goto fail;
+            }
+            j++;
         } else {
-            seen[match] = 1;
             out->matched_count++;
-            if (strcmp(cell(&left->rows[i], lv), cell(&right->rows[match], rv)) != 0 &&
-                !add_finding(out, key, cell(&left->rows[i], lv), cell(&right->rows[match], rv),
-                             left->rows[i].source_row, right->rows[match].source_row,
-                             MIGRAVEN_FAIL)) {
+            if (strcmp(cell(left_row, lv), cell(right_row, rv)) != 0 &&
+                !add_finding(out, left_entry->key, cell(left_row, lv),
+                             cell(right_row, rv), left_row->source_row,
+                             right_row->source_row, MIGRAVEN_FAIL)) {
                 set_error(error, error_size, "Out of memory");
                 goto fail;
             }
+            i++;
+            j++;
         }
     }
 
-    for (j = 0; j < right->row_count; ++j) {
-        if (!seen[j]) {
-            out->right_only_count++;
-            if (!add_finding(out, cell(&right->rows[j], rk), "",
-                             cell(&right->rows[j], rv), 0,
-                             right->rows[j].source_row, MIGRAVEN_INDETERMINATE)) {
-                set_error(error, error_size, "Out of memory");
-                goto fail;
-            }
+    while (i < left->row_count) {
+        const KeyEntry *entry = &left_index[i++];
+        const MigravenRow *row = &left->rows[entry->row_index];
+        out->left_only_count++;
+        if (!add_finding(out, entry->key, cell(row, lv), "", row->source_row, 0,
+                         MIGRAVEN_INDETERMINATE)) {
+            set_error(error, error_size, "Out of memory");
+            goto fail;
+        }
+    }
+    while (j < right->row_count) {
+        const KeyEntry *entry = &right_index[j++];
+        const MigravenRow *row = &right->rows[entry->row_index];
+        out->right_only_count++;
+        if (!add_finding(out, entry->key, "", cell(row, rv), 0, row->source_row,
+                         MIGRAVEN_INDETERMINATE)) {
+            set_error(error, error_size, "Out of memory");
+            goto fail;
         }
     }
 
     free(left_index);
     free(right_index);
-    free(seen);
     return 1;
 
 fail:
     free(left_index);
     free(right_index);
-    free(seen);
     migraven_report_free(out);
     return 0;
 }
