@@ -1,32 +1,17 @@
 # Migraven website
 
-A static, multi-page product website. It is intentionally separate from the C17 CLI and Python evidence tools.
+Static, multi-page product site for Migraven. Cloudflare Pages can serve the contents of this directory directly; no build step is required.
 
 ## Pages
+- `index.html` — product positioning, target users, workflow, benefits and commercial path
+- `product.html` — capabilities, inputs, engine rules and deliverables
+- `demo.html` — local browser-side CSV comparison demonstration
+- `method.html` — comparison semantics and evidence boundaries
+- `evaluation.html` — bounded paid-evaluation scope and request-draft workflow
+- `faq.html` — product, data and commercial questions
 
-- `index.html` — product overview and workflow
-- `product.html` — current capabilities, deliverables and boundaries
-- `method.html` — execution semantics, statuses and evidence limits
-- `evaluation.html` — bounded evaluation scope and safe-data requirements
-- `faq.html` — buyer questions on scope, evidence, security and evaluation boundaries
+## Demo privacy
+The browser demo parses selected CSV files in the current tab. It does not upload, persist or transmit file contents. The demo is a JavaScript demonstration of the documented exact-match rules; the production CLI and comparison library remain implemented in C17.
 
-## Local preview
-
-Open `index.html` in a browser, or serve this directory with any static HTTP server.
-
-## Cloudflare Pages
-
-Create a Pages project connected to this repository and configure:
-
-- **Production branch:** `main`
-- **Build command:** leave blank
-- **Build output directory:** `website`
-- **Root directory:** leave blank
-
-Deploy only after reviewing the published copy and confirming the intended legal and commercial wording. The site contains no backend, analytics, tracking pixels, upload form or customer-data collection.
-
-## Design system
-
-Archive & Instrument: warm ivory surfaces, graphite structure, aged brass accents, editorial serif display type and monospaced technical labels. Layouts are responsive and respect reduced-motion preferences.
-
-The website describes the current product boundary. It does not claim integrations, hosted processing, migration transformation, semantic normalization, certification, customer results or a commercial license.
+## Deployment
+Set the Cloudflare Pages output directory to `website`. Leave the build command empty.

@@ -1,25 +1,45 @@
 (() => {
-  const toggle = document.querySelector('.menu-toggle');
-  const nav = document.querySelector('#site-nav');
-  if (toggle && nav) {
-    toggle.addEventListener('click', () => {
-      const open = toggle.getAttribute('aria-expanded') !== 'true';
-      toggle.setAttribute('aria-expanded', String(open));
-      nav.classList.toggle('open', open);
-      toggle.textContent = open ? 'Close' : 'Menu';
-    });
+  "use strict";
+  const toggle=document.querySelector(".menu-toggle"),nav=document.querySelector("#site-nav");
+  if(toggle&&nav)toggle.addEventListener("click",()=>{const open=toggle.getAttribute("aria-expanded")!=="true";toggle.setAttribute("aria-expanded",String(open));nav.classList.toggle("open",open);toggle.textContent=open?"Close":"Menu";});
+  const revealTargets=document.querySelectorAll(".audience-card,.workflow-step,.benefit-grid article,.format-card,.deliverable-grid article,.commercial-grid article");
+  if("IntersectionObserver" in window&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}}),{threshold:.12});revealTargets.forEach(el=>{el.classList.add("reveal");observer.observe(el);});}
+  document.querySelectorAll("[data-copy]").forEach(button=>button.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(button.dataset.copy);button.textContent="Copied";}catch{button.textContent="Copy unavailable";}}));
+  const form=document.querySelector("[data-request-form]");
+  if(form)form.addEventListener("submit",event=>{event.preventDefault();const data=new FormData(form);const subject="Migraven evaluation enquiry";const body=["Work email: "+data.get("email"),"Organisation: "+data.get("company"),"Migration context: "+data.get("context"),"","I would like to discuss a scoped Migraven evaluation."].join("\n");const feedback=form.querySelector("[data-form-feedback]");feedback.textContent="Your email draft is ready. Add the agreed recipient before sending.";window.location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);});
+  const root=document.querySelector("[data-demo]");if(!root)return;
+  const $=selector=>root.querySelector(selector);
+  const sampleSource="record_id,account_name,account_status,credit_limit\nAC-1042,Northstar Parts,ACTIVE,25000\nAC-1043,Meridian Works,PAUSED,18000\nAC-1044,Atlas Components,ACTIVE,42000\nAC-1045,Redwood Industrial,ACTIVE,12000\nAC-1046,Solace Systems,REVIEW,30000\nAC-1048,Westline Supply,ACTIVE,16000";
+  const sampleTarget="record_id,account_name,account_status,credit_limit\nAC-1042,Northstar Parts,ACTIVE,25000\nAC-1043,Meridian Works,OPEN,18000\nAC-1044,Atlas Components,ACTIVE,42000\nAC-1045,Redwood Industrial,ACTIVE,12500\nAC-1046,Solace Systems,REVIEW,30000\nAC-1047,Newbridge Trading,ACTIVE,9000";
+  let source=null,target=null,report=null,visibleFindings=[];
+  const esc=value=>String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+  function parseCSV(text){
+    const rows=[];let row=[],field="",quoted=false;
+    for(let i=0;i<text.length;i++){const ch=text[i];if(quoted){if(ch==='"'&&text[i+1]==='"'){field+='"';i++;}else if(ch==='"')quoted=false;else field+=ch;}else if(ch==='"'&&field.length===0){quoted=true;}else if(ch===","){row.push(field);field="";}else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&text[i+1]==="\n")i++;row.push(field);field="";if(row.some(cell=>cell!==""))rows.push(row);row=[];}else field+=ch;}
+    if(quoted)throw new Error("CSV contains an unclosed quoted field.");if(field.length||row.length){row.push(field);if(row.some(cell=>cell!==""))rows.push(row);}if(!rows.length)throw new Error("The CSV is empty.");
+    const headers=rows.shift().map((v,i)=>i===0?v.replace(/^\uFEFF/,"").trim():v.trim());if(!headers.length||headers.some(v=>!v))throw new Error("Every column needs a non-empty header.");if(new Set(headers).size!==headers.length)throw new Error("Duplicate column names were found.");
+    const records=rows.map((cells,index)=>{if(cells.length!==headers.length)throw new Error("Row "+(index+2)+" has "+cells.length+" values; expected "+headers.length+".");const obj={};headers.forEach((h,i)=>obj[h]=cells[i]);obj.__row=index+2;return obj;});return {headers,records};
   }
-  document.querySelectorAll('[data-copy]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const value = button.getAttribute('data-copy');
-      try {
-        await navigator.clipboard.writeText(value);
-        const previous = button.textContent;
-        button.textContent = 'Copied';
-        window.setTimeout(() => { button.textContent = previous; }, 1400);
-      } catch {
-        button.textContent = 'Copy unavailable';
-      }
-    });
-  });
+  function loadText(text,name,side){const parsed=parseCSV(text);if(side==="source"){source=parsed; $("[data-source-name]").textContent=name;$("[data-source-status]").textContent="Loaded";}else{target=parsed;$("[data-target-name]").textContent=name;$("[data-target-status]").textContent="Loaded";}resetResults();syncFields();}
+  function resetResults(){report=null;$("[data-result-status]").textContent="NOT RUN";$("[data-result-status]").className="result-status";$("[data-export]").disabled=true;["paired","differences","source","target"].forEach(key=>$("[data-stat-"+key+"]").textContent="—");$("[data-findings]").innerHTML='<tr><td colspan="6" class="empty-state">Run a comparison to inspect findings.</td></tr>';$("[data-finding-count]").textContent="Run a comparison to populate the register.";}
+  function syncFields(){if(!source||!target)return;const shared=source.headers.filter(h=>target.headers.includes(h));if(!shared.length){showError("The two files have no matching column names.");return;}const keySelect=$("[data-key-select]");keySelect.innerHTML=shared.map((h,i)=>'<option value="'+esc(h)+'">'+esc(h)+'</option>').join("");const preferred=shared.includes("record_id")?"record_id":shared[0];keySelect.value=preferred;renderFields(shared,preferred);keySelect.onchange=()=>renderFields(shared,keySelect.value);}
+  function renderFields(shared,key){const box=$("[data-field-options]");const fields=shared.filter(h=>h!==key);box.innerHTML=fields.map((h,i)=>'<label class="field-option"><input type="checkbox" value="'+esc(h)+'" '+(i<Math.min(3,fields.length)?"checked":"")+'> '+esc(h)+'</label>').join("")||'<span class="muted-copy">No comparable fields remain after selecting the key.</span>';resetResults();}
+  function showError(message){const box=$("[data-demo-error]");box.hidden=false;box.textContent=message;}
+  function clearError(){const box=$("[data-demo-error]");box.hidden=true;box.textContent="";}
+  function validateKeys(dataset,key,label){const seen=new Map();for(const row of dataset.records){const value=row[key];if(!value)throw new Error(label+" contains an empty key at row "+row.__row+".");if(seen.has(value))throw new Error(label+" contains duplicate key "+value+" at rows "+seen.get(value)+" and "+row.__row+".");seen.set(value,row.__row);}return seen;}
+  function run(){clearError();if(!source||!target){showError("Load both a source and target CSV before running the comparison.");return;}const key=$("[data-key-select]").value;const fields=Array.from(root.querySelectorAll("[data-field-options] input:checked")).map(input=>input.value);if(!key||!fields.length){showError("Choose one unique key and at least one field to compare.");return;}if(fields.length>32){showError("The engine supports up to 32 selected fields per run.");return;}try{validateKeys(source,key,"Source");validateKeys(target,key,"Target");}catch(error){showError(error.message);return;}
+    const leftMap=new Map(source.records.map(row=>[row[key],row]));const rightMap=new Map(target.records.map(row=>[row[key],row]));const keys=Array.from(new Set([...leftMap.keys(),...rightMap.keys()])).sort();const checks=[];let totalDifferences=0,totalSourceOnly=0,totalTargetOnly=0,paired=0;
+    fields.forEach(field=>{const findings=[];for(const id of keys){const left=leftMap.get(id),right=rightMap.get(id);if(left&&right){if(left[field]!==right[field]){findings.push({key:id,field,source_value:left[field],target_value:right[field],source_row:left.__row,target_row:right.__row,status:"DIFFERENCE",type:"difference"});totalDifferences++;}}else if(left){findings.push({key:id,field,source_value:left[field],target_value:null,source_row:left.__row,target_row:null,status:"SOURCE_ONLY",type:"source-only"});totalSourceOnly++;}else{findings.push({key:id,field,source_value:null,target_value:right[field],source_row:null,target_row:right.__row,status:"TARGET_ONLY",type:"target-only"});totalTargetOnly++;}}
+      checks.push({field,summary:{matched:Math.min(leftMap.size,rightMap.size),exceptions:findings.length},findings});});
+    paired=Array.from(leftMap.keys()).filter(id=>rightMap.has(id)).length;
+    report={product:"Migraven browser demonstration",version:"0.1.0-demo",generated_at:new Date().toISOString(),execution:"client-side browser demonstration; files are not uploaded",status:(totalDifferences+totalSourceOnly+totalTargetOnly)?"REVIEW":"PASS",key,fields,inputs:{source:{file:$("[data-source-name]").textContent,rows:source.records.length},target:{file:$("[data-target-name]").textContent,rows:target.records.length}},summary:{paired_keys:paired,value_differences:totalDifferences,source_only_keys:Array.from(leftMap.keys()).filter(id=>!rightMap.has(id)).length,target_only_keys:Array.from(rightMap.keys()).filter(id=>!leftMap.has(id)).length},checks};
+    visibleFindings=checks.flatMap(check=>check.findings);renderResults();$("[data-export]").disabled=false;
+  }
+  function renderResults(){const summary=report.summary;$("[data-stat-paired]").textContent=summary.paired_keys;$("[data-stat-differences]").textContent=summary.value_differences;$("[data-stat-source]").textContent=summary.source_only_keys;$("[data-stat-target]").textContent=summary.target_only_keys;const status=$("[data-result-status]");status.textContent=report.status;status.className="result-status "+(report.status==="PASS"?"pass":"review");$("[data-finding-count]").textContent=visibleFindings.length+" finding(s) across "+report.fields.length+" selected field(s).";renderFindings();}
+  function renderFindings(){const filter=$("[data-filter]").value;const list=visibleFindings.filter(item=>filter==="all"||item.type===filter);const body=$("[data-findings]");if(!list.length){body.innerHTML='<tr><td colspan="6" class="empty-state">No findings for this filter. The selected values matched.</td></tr>';return;}body.innerHTML=list.map(item=>'<tr><td>'+esc(item.key)+'</td><td>'+esc(item.field)+'</td><td>'+esc(item.source_value===null?"—":item.source_value)+'</td><td>'+esc(item.target_value===null?"—":item.target_value)+'</td><td>'+(item.source_row===null?"—":item.source_row)+' / '+(item.target_row===null?"—":item.target_row)+'</td><td><span class="status-chip '+(item.type==="difference"?"chip-difference":item.type==="source-only"?"chip-source":"chip-target")+'">'+esc(item.status)+'</span></td></tr>').join("");}
+  function sample(){try{loadText(sampleSource,"accounts_source.csv","source");loadText(sampleTarget,"accounts_target.csv","target");}catch(error){showError(error.message);}}
+  $("[data-load-sample]").addEventListener("click",sample);$("[data-run-demo]").addEventListener("click",run);$("[data-filter]").addEventListener("change",renderFindings);
+  [["[data-source-file]","source"],["[data-target-file]","target"]].forEach(([selector,side])=>$(selector).addEventListener("change",async event=>{const file=event.target.files&&event.target.files[0];if(!file)return;if(file.size>10*1024*1024){showError("Files must be 10 MB or smaller for this browser demonstration.");event.target.value="";return;}try{loadText(await file.text(),file.name,side);clearError();}catch(error){showError(error.message);}}));
+  $("[data-export]").addEventListener("click",()=>{if(!report)return;const blob=new Blob([JSON.stringify(report,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download="migraven-demo-comparison.json";anchor.click();URL.revokeObjectURL(url);});
+  sample();
 })();

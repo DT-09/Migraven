@@ -1,32 +1,41 @@
-# MIGRAVEN
+# Migraven
 
 **Migration export verification with source-row evidence.**
 
-Migraven is a local-first C17 utility for implementation consultancies and migration teams. It compares agreed source and target CSV or flat-object JSONL exports by a unique key, checks selected fields using exact string equality, and produces reviewable findings with source-row references.
+Migraven is a local-first migration verification product for ERP/CRM implementation consultancies, migration delivery teams and data-assurance reviewers. Its dependency-free C17 engine compares agreed source and target CSV or flat-object JSONL exports by a unique key, checks selected fields using exact string equality, and produces traceable findings.
 
-> **Product status:** early evaluation product. It is not production-certified, independently security-assessed, or a migration-correctness guarantee. No customer, savings, or performance claims are made.
+> **Product status:** evaluation-stage software. It is not independently security-assessed, certified, or a guarantee of migration correctness. No customer, savings, throughput or defect-detection claims are made.
+
+## Product in one sentence
+
+Turn two agreed migration exports into a field-specific, row-linked exception register that a human reviewer can investigate.
+
+## Core architecture
+
+- **C17 core and CLI:** bounded CSV/JSONL parsing, structural validation, unique-key validation, sorted indexes, deterministic merge-join comparison and JSON output.
+- **Python 3.10+ utilities:** local demonstration orchestration, evidence-manifest generation and verification, offline HTML report rendering and release packaging.
+- **Static browser application:** an interactive CSV demonstration that runs locally in the visitor's browser. It does not upload or persist selected files.
+- **Website:** static multi-page product presentation; no hosted customer-data service or payment processing is implied.
+
+C++ is deliberately not added as a second native engine. The comparison contract stays in one dependency-free C17 implementation. Python is used for orchestration and evidence packaging rather than duplicating the core algorithm. The website demo is a browser-side demonstration of the same documented exact-match rules; the production CLI remains the C17 implementation.
 
 ## Who it is for
 
-ERP/CRM implementation consultancies and migration delivery teams that need a repeatable check on selected records before internal or client sign-off.
-
-**The job:** compare two agreed exports and give the migration lead a traceable exception list to review.
-
-Migraven is deliberately narrower than a full migration-testing platform. It does not replace transformation testing, schema mapping, integration testing, or business acceptance.
+- ERP/CRM implementation consultancies running repeat migration projects.
+- Internal migration delivery teams preparing checkpoint reviews.
+- Data assurance reviewers who need row-level context for exceptions.
 
 ## What it does
 
 - Reads CSV and flat-object JSONL locally.
-- Accepts a UTF-8 byte-order mark at the start of CSV exports and rejects embedded NUL bytes.
-- Validates headers and row widths.
-- Requires a non-empty, unique comparison key in each input.
-- Compares up to 32 selected fields per run using exact string equality.
-- Reports unequal values and keys present on only one side.
-- Preserves input-row references in JSON findings.
-- Produces a self-contained HTML report for human review.
-- Creates a SHA-256 manifest binding the two input files and generated JSON report.
+- Validates headers, row widths and input structure.
+- Requires a non-empty, unique comparison key in each dataset.
+- Compares up to 32 selected fields independently using exact string equality.
+- Identifies unequal values and keys present on only one side.
+- Preserves original source-row references.
+- Produces machine-readable JSON, a self-contained HTML report and a SHA-256 manifest.
 
-A finding is an observation, not proof of a migration defect. A PASS applies only to the selected key and fields.
+A finding is an observation, not proof of a migration defect. PASS applies only to the selected key and fields.
 
 ## Build and test
 
@@ -38,29 +47,18 @@ cmake --build build --config Release
 ctest --test-dir build --output-on-failure
 ```
 
-The suite covers the C core, CLI, CSV edge cases, HTML escaping, evidence integrity, the end-to-end demonstration and release packaging. Package validation builds on Linux, Windows and macOS.
+The suite covers the C core, CLI, CSV edge cases, HTML escaping, evidence integrity, the end-to-end demonstration, release packaging and website link/navigation smoke tests.
 
-## Run the complete demonstration
+## Run the bundled demonstration
 
 ```bash
 python tools/demo.py
 ```
 
-The script uses bundled synthetic records and writes `migraven-demo-output/` with:
-
-| File | Purpose |
-|---|---|
-| `comparison.json` | Machine-readable field results |
-| `review.html` | Self-contained report for a human reviewer |
-| `evidence.json` | SHA-256 manifest for the inputs and JSON report |
-
-It then verifies the manifest and prints the output paths. No customer data is used.
-
-If the executable is outside the default build location, pass it explicitly:
-
-```bash
-python tools/demo.py --binary build/Release/migraven.exe
-```
+The script uses synthetic records and writes `migraven-demo-output/` containing:
+- `comparison.json` — machine-readable field results;
+- `review.html` — self-contained human-review report;
+- `evidence.json` — SHA-256 manifest for both inputs and the JSON report.
 
 ## Direct comparison
 
@@ -70,104 +68,43 @@ python tools/demo.py --binary build/Release/migraven.exe
 ./build/migraven compare \
   --key record_id \
   --field account_status \
-  examples/migration_source.csv \
-  examples/migration_target.csv
+  --field account_name \
+  examples/migration_source.csv examples/migration_target.csv
 ```
 
-For JSONL, specify the format:
+For JSONL, specify `--format jsonl`. JSONL records must be flat objects with matching property names; property order may differ. String, number, boolean and null scalar values are supported. Nested arrays and objects are not supported.
 
-```bash
-./build/migraven compare --format jsonl \
-  --key record_id --field account_status \
-  examples/migration_source.jsonl examples/migration_target.jsonl
-```
+## Comparison algorithm
 
-JSONL records must be flat objects with matching property names; property order may differ. String, number, boolean and null values are accepted. Nested arrays and objects are not supported.
+For each selected field, the engine:
+1. validates that keys are non-empty and unique on both sides;
+2. builds sorted key indexes that retain each record's original row index;
+3. performs a two-pointer merge join over those indexes;
+4. emits value-difference and one-sided-key findings in key order.
 
-To render a saved JSON result as HTML:
+Index construction is (O(n log n + m log m)); the merge pass is (O(n+m)). Auxiliary key-index memory is (O(n+m)), excluding parsed tables and findings. The CLI currently repeats the index construction for each selected field; a shared multi-field index is a measured optimisation candidate, not a current claim.
 
-```bash
-./build/migraven compare --key record_id --field account_status \
-  examples/migration_source.csv examples/migration_target.csv > result.json
+## Evidence boundary
 
-python tools/render_report.py result.json --output review.html
-```
+The evidence utility records SHA-256 hashes and byte sizes for both input files and the generated JSON report. The manifest is unsigned. It detects changes relative to the recorded manifest but does not prove who created it, authenticate the original exports, or prevent replacement of both the manifest and files. It is an integrity aid, not a digital signature or audit certification.
 
-To create and verify a SHA-256 evidence manifest:
+## Product website and browser demo
 
-```bash
-python tools/evidence.py create \
-  --left examples/migration_source.csv \
-  --right examples/migration_target.csv \
-  --report result.json \
-  --key record_id --field account_status \
-  --format csv --tool-version 0.1.0 \
-  --output evidence.json
+The multi-page static website is in [website/](website/). It includes an interactive CSV demonstration at [website/demo.html](website/demo.html). The demo parses selected files in the browser tab and does not upload, save or transmit them. It demonstrates the documented exact-key/exact-value workflow; the production comparison engine remains the C17 CLI/library.
 
-python tools/evidence.py verify evidence.json
-```
+For Cloudflare Pages, set the output directory to `website` and leave the build command empty.
 
-**Manifest trust boundary:** the manifest is unsigned. It detects changes relative to the recorded hashes and sizes, but does not prove who created it or prevent replacement of both the manifest and files. It is an integrity aid, not a digital signature or audit certification. When inputs and the manifest are on separate Windows drives, the utility records absolute paths; those manifests are locally verifiable but not portable.
+## Commercial path
 
-## Build a local release bundle
+The proposed route is:
+1. **Paid evaluation:** one source/target pair, one key, up to three critical fields and an agreed evidence package.
+2. **Team licence:** recurring annual use after licence, support, update and data terms are finalised.
+3. **Consultancy partner licence:** repeat project use across a delivery partner's portfolio.
 
-After building Migraven, create a ZIP containing the executable, documentation, synthetic examples, demo tools and generated demo evidence:
+These are proposed stages, not active payment plans. No validated public price, checkout, commercial licence or customer data-processing agreement is currently represented as live. Fee, delivery, payment route, data handling, authorisation and licence terms must be agreed before work starts. Start with synthetic or properly de-identified data.
 
-```bash
-python tools/package_release.py \
-  --binary build/migraven \
-  --version 0.1.0 \
-  --platform local \
-  --output-dir dist
-```
-
-On Windows, use `--binary build/Release/migraven.exe`. The packager creates a ZIP and a matching SHA-256 checksum file. The package-validation workflow tests this process on all three desktop platforms.
-
-## Output contract
-
-The CLI emits one JSON object. Top-level status is `PASS` only when all selected fields have no findings; otherwise it is `REVIEW`. The result also records the source and target filenames and parsed row counts (not full local paths). Each entry in `checks` includes the field name, counts and findings. A paired record with unequal values is `FAIL`; a key present on only one side is `INDETERMINATE`.
-
-## Current limits
-
-- CSV and flat-object JSONL only; no database connectors.
-- Up to 32 fields per run; fields are compared independently.
-- Exact string equality only; no numeric tolerance, date normalization, currency conversion, fuzzy matching or business-rule inference.
-- No schema mapping, relationship validation, aggregate reconciliation or transformation validation.
-- Key matching uses sorted indexes: O((n + m) log(n + m)) lookup preparation and O(n + m) auxiliary memory per selected field. Benchmark representative exports before operational use.
-- SHA-256 manifests are unsigned and do not establish authenticity.
-- No independent security assessment, compliance certification or production approval.
-- No claim that a PASS proves overall migration correctness.
-
-## Product website
-
-The static, multi-page product website is in [website/](website/). It documents the current capabilities, comparison semantics, evidence boundary and proposed evaluation scope.
-
-Preview locally by opening `website/index.html` or serving the `website/` directory. For Cloudflare Pages, use the repository root, leave the build command blank, and set the build output directory to `website`. See [website deployment notes](website/README.md).
-
-The site is informational only. It has no upload endpoint, backend, analytics, tracking pixels or customer-data collection.
-
-## Paid evaluation
-
-The initial offer is a bounded **Migration Export Verification Evaluation**:
-
-- one source/target dataset pair;
-- one agreed unique key;
-- up to three critical fields;
-- CSV or flat-object JSONL;
-- JSON result, HTML review report, exception register and SHA-256 manifest;
-- a review note separating observed differences from unresolved explanations.
-
-See:
-- [Customer quick start](docs/customer-quickstart.md)
-- [Buyer one-pager](docs/buyer-one-pager.md)
-- [Product brief](docs/product-brief.md)
-- [First market and buyer qualification](docs/first-market.md)
-- [Paid pilot scope and acceptance criteria](docs/paid-pilot.md)
-- [Data handling and evaluation boundaries](docs/data-handling.md)
-- [Paid evaluation proposal template](docs/pilot-proposal-template.md)
-
-The evaluation is a proposed commercial offer, not a proven price or established customer engagement. Fee, delivery date, payment route, data-handling terms and any license grant must be agreed before work starts.
+See [docs/ENGINE_CONTRACT.md](docs/ENGINE_CONTRACT.md), [docs/COMMERCIAL_MODEL.md](docs/COMMERCIAL_MODEL.md), [docs/data-handling.md](docs/data-handling.md), [docs/paid-pilot.md](docs/paid-pilot.md) and [docs/first-market.md](docs/first-market.md).
 
 ## Licensing
 
-No open-source or commercial license has been selected. Do not redistribute, deploy for a customer, or assume commercial-use rights until written license terms are agreed. Normal copyright restrictions apply.
+No open-source or commercial licence has been selected. Do not redistribute or deploy for a customer until written licence terms are agreed.

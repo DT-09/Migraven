@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "website"
-PAGES = ("index.html", "product.html", "method.html", "evaluation.html", "faq.html")
+PAGES = ("index.html", "product.html", "demo.html", "method.html", "evaluation.html", "faq.html")
 
 
 class PageParser(HTMLParser):
@@ -84,6 +84,8 @@ def main() -> int:
     js = (SITE / "assets/site.js").read_text(encoding="utf-8")
     if "http://" in js or "https://" in js:
         fail("site JavaScript must not call external services")
+    if "data-demo" not in js or "createObjectURL" not in js:
+        fail("interactive demo or JSON export is missing")
     print("Migraven website smoke tests passed.")
     return 0
 

@@ -10,8 +10,7 @@ static void usage(void) {
          "  migraven inspect [--format csv|jsonl] <file>\n"
          "  migraven compare [--strict] --key <column> --field <column> [--field <column> ...] [--format csv|jsonl] <left> <right>\n\n"
          "Each --field is checked independently against the same unique key.\n"
-         "Use --strict to return exit code 1 when findings exist.\\n"
-         "Use --strict to return exit code 1 when findings exist.\\n"
+         "Use --strict to return exit code 1 when findings exist.\n"
          "CSV and flat-object JSONL are supported. Output is JSON on stdout.");
 }
 
@@ -143,33 +142,31 @@ static int compare_cmd(int argc, char **argv) {
         }
     }
 
-    {
-        for (i = 0; i < field_count; ++i)
-            if (reports[i].finding_count) review = 1;
+    for (i = 0; i < field_count; ++i)
+        if (reports[i].finding_count) review = 1;
 
-        printf("{\"status\":\"%s\",\"key\":", review ? "REVIEW" : "PASS");
-        migraven_json_string(key);
-        printf(",\"format\":");
-        migraven_json_string(format);
-        printf(",\"inputs\":{\"source\":{\"file\":");
-        migraven_json_string(file_name(left));
-        printf(",\"rows\":%zu},\"target\":{\"file\":", a.row_count);
-        migraven_json_string(file_name(right));
-        printf(",\"rows\":%zu}},\"checks\":[", b.row_count);
-        for (i = 0; i < field_count; ++i) {
-            const MigravenReport *report = &reports[i];
-            if (i) putchar(',');
-            printf("{\"field\":");
-            migraven_json_string(fields[i]);
-            printf(",\"summary\":{\"matched\":%zu,\"left_only\":%zu,"
-                   "\"right_only\":%zu,\"exceptions\":%zu},\"findings\":",
-                   report->matched_count, report->left_only_count,
-                   report->right_only_count, report->finding_count);
-            print_findings(report);
-            putchar('}');
-        }
-        puts("]}");
+    printf("{\"status\":\"%s\",\"key\":", review ? "REVIEW" : "PASS");
+    migraven_json_string(key);
+    printf(",\"format\":");
+    migraven_json_string(format);
+    printf(",\"inputs\":{\"source\":{\"file\":");
+    migraven_json_string(file_name(left));
+    printf(",\"rows\":%zu},\"target\":{\"file\":", a.row_count);
+    migraven_json_string(file_name(right));
+    printf(",\"rows\":%zu}},\"checks\":[", b.row_count);
+    for (i = 0; i < field_count; ++i) {
+        const MigravenReport *report = &reports[i];
+        if (i) putchar(',');
+        printf("{\"field\":");
+        migraven_json_string(fields[i]);
+        printf(",\"summary\":{\"matched\":%zu,\"left_only\":%zu,"
+               "\"right_only\":%zu,\"exceptions\":%zu},\"findings\":",
+               report->matched_count, report->left_only_count,
+               report->right_only_count, report->finding_count);
+        print_findings(report);
+        putchar('}');
     }
+    puts("]}");
 
     for (i = 0; i < field_count; ++i) migraven_report_free(&reports[i]);
     migraven_table_free(&a);
