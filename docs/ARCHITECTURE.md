@@ -2,26 +2,24 @@
 
 ## Product boundary
 
-Migraven is a local-first verification engine for comparing agreed source and target exports before migration sign-off. It is not a migration tool, data-cleaning platform, ETL engine, or proof that an entire migration is correct.
+Migraven is a local-first verification engine for comparing agreed source and target exports before a migration checkpoint. It is not a migration tool, ETL engine, schema mapper, data-cleaning platform or proof that an entire migration is correct.
 
-## Current implementation
+## Language and runtime boundaries
 
-migraven_core is a dependency-free C17 static library. The CLI consumes the public API in include/migraven/migraven.h.
+- **C17:** canonical parsing, key validation, comparison algorithm, public library API and CLI.
+- **Python 3.10+:** orchestration, evidence manifest generation/verification, offline report rendering and release packaging.
+- **Browser JavaScript:** interactive CSV demonstration only. It mirrors the documented exact-match semantics and is not the production C engine.
+- **TypeScript / C++:** intentionally not introduced yet. They would add build and maintenance surface without a current product requirement. A future hosted workspace or typed client SDK should justify TypeScript; the core remains C17.
 
-- csv.c: bounded CSV loading, quoted-field parsing, row-width validation and table ownership.
-- jsonl.c: bounded flat-object JSONL parsing, scalar normalization, UTF-8 preservation, duplicate-property rejection and schema consistency checks.
-- compare.c: unique-key validation, sorted key indexes, exact field comparison and source-row findings.
-- util.c: status labels and JSON string serialization.
-- main.c: CLI argument parsing and machine-readable report output.
-- tools/render_report.py: local, self-contained HTML evidence report rendering with escaped dynamic values.
+## C17 engine
 
-## Data model
+- `csv.c`: bounded CSV loading, quoted-field parsing, row-width validation and table ownership.
+- `jsonl.c`: bounded flat-object JSONL parsing, scalar normalization, UTF-8 preservation, duplicate-property rejection and schema consistency checks.
+- `compare.c`: unique-key validation, sorted key indexes, deterministic two-pointer merge join, exact field comparison and original source-row findings.
+- `util.c`: status labels and JSON string serialization.
+- `main.c`: CLI argument parsing and machine-readable report output.
 
-Both input adapters populate the same table representation: ordered column names, string-valued cells and physical source line numbers.
-
-JSONL strings are decoded. Number and boolean tokens are retained as their lexical representation. JSON null becomes an empty string. Nested arrays and objects are rejected. JSONL records must use the same property names; property order may differ.
-
-The current model is intentionally conservative. It does not infer numeric, date, currency, timezone or domain-specific types. 10, 10.0 and "10" remain different values.
+Both adapters populate a shared table representation: ordered column names, string-valued cells and physical source line numbers. JSONL strings are decoded. Number and boolean tokens retain lexical representation. JSON null becomes an empty string. Nested arrays and objects are rejected.
 
 ## Comparison semantics
 
@@ -31,20 +29,22 @@ The caller selects one unique key column and one or more fields. Keys must be no
 - FAIL: a paired key has unequal values.
 - INDETERMINATE: a key exists on only one side; the engine does not infer why.
 
-For each field comparison, sorted key indexes provide O((n + m) log(n + m)) index preparation and O(n + m) auxiliary memory. Multiple fields are evaluated independently. Output findings retain original input row numbers. Benchmark representative datasets before making throughput claims.
+Both key indexes are sorted once per field comparison. A two-pointer merge join emits findings in key order, independent of source row ordering. Complexity is (O(n log n + m log m)) for index construction and (O(n+m)) for the merge pass. Auxiliary index memory is (O(n+m)), excluding parsed tables and findings. The CLI currently rebuilds the indexes for each selected field.
 
-## Trust and evidence boundary
+## Evidence and trust boundary
 
-A report records observations made from the supplied files under explicit comparison rules. It does not establish that the source exports were complete, authentic, correctly extracted, or semantically equivalent. The `tools/evidence.py` utility creates a versioned SHA-256 manifest binding both input files and the JSON report, along with format, key, fields, semantics, tool version and timestamp. The verifier re-hashes all three files and checks byte sizes. The manifest is unsigned: it detects changes relative to the recorded manifest but does not establish author identity or protect against replacement of the manifest itself. Trusted storage or a digital signature is required for stronger provenance.
+A report records observations made from supplied files under explicit comparison rules. It does not establish that source exports were complete, authentic, correctly extracted or semantically equivalent. The evidence helper binds the two input files and JSON result using SHA-256 hashes and byte sizes. The manifest is unsigned; it detects changes relative to its recorded values but does not establish author identity or protect against replacement of the manifest and files together.
 
-## Product website
+## Website and browser demo
 
-The static website in `website/` is a separate presentation layer. It describes only implemented CLI behavior and documented evaluation boundaries. It does not process customer files or imply that the CLI is a hosted service. Cloudflare Pages can serve the directory as a static site with no build step.
+Cloudflare Pages can serve `website/` without a build step. The browser demo accepts CSV only, parses it in the current browser tab, performs the documented exact key/value comparison and offers a JSON download. It does not upload or persist file contents. It is an illustrative browser implementation, not a WebAssembly build of the C library.
 
-## Remaining engineering gates
+## Engineering gates
 
-1. Define explicit typed-value and normalization policies only when a buyer requires them; do not silently alter exact-string semantics.
-2. Add representative large-file, memory-limit and performance tests before publishing throughput guidance.
-3. Add fuzzing and sanitizer coverage for CSV, JSONL and report parsing.
-4. Evaluate signed manifests and deterministic report serialization if stronger chain-of-custody requirements emerge.
-5. Complete independent security and data-handling review before making production-assurance claims.
+1. Add property-based and fuzz testing for CSV, JSONL and report parsing.
+2. Add sanitizer coverage and representative memory-limit tests.
+3. Benchmark large representative exports before publishing throughput guidance.
+4. Consider a shared multi-field index to avoid repeating key-index construction.
+5. Consider signed manifests only if buyer requirements justify key management and signature verification.
+6. Complete independent security and data-handling review before production-assurance claims.
+7. Finalise commercial licensing, customer terms and payment operations before accepting customer data or claiming production readiness.
