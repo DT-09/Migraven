@@ -1,9 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none" role="img" aria-label="Migraven circular raven emblem">
-<defs><linearGradient id="ring" x1="12" y1="10" x2="84" y2="88" gradientUnits="userSpaceOnUse"><stop stop-color="#E8D7B8"/><stop offset=".52" stop-color="#C58B4C"/><stop offset="1" stop-color="#806044"/></linearGradient><linearGradient id="bird" x1="22" y1="22" x2="77" y2="76" gradientUnits="userSpaceOnUse"><stop stop-color="#E7D6B8"/><stop offset="1" stop-color="#B77B43"/></linearGradient></defs>
-<circle cx="48" cy="48" r="44" fill="#211813" stroke="url(#ring)" stroke-width="2.5"/>
-<circle cx="48" cy="48" r="37.5" stroke="#D7BD91" stroke-opacity=".2"/>
-<path d="M19 62.5c8.5-3.2 13.1-11.7 15.4-21.4 1.7-7.1 6.8-13.4 15.2-16.1-2.1 5.7-1.7 10.4.8 14.1 5.7-5.1 12.9-8.2 22.8-8.6-5.7 4.8-8.8 10-9.3 15.8 4.8-1.1 9.4-.9 13.8.7-7.1 2.3-11.5 6.6-14.2 12.5-4.1 9.1-11.4 14.2-22.1 13.6 5.4-3.6 8.2-7.4 8.6-11.6-9.4 5.1-19.4 5.9-31 1Z" fill="url(#bird)" stroke="#F0E5D4" stroke-opacity=".65" stroke-width="1.2" stroke-linejoin="round"/>
-<path d="M61.5 44.7 79 46.1l-13.4 7.1" fill="#C58B4C" stroke="#E7D6B8" stroke-width="1" stroke-linejoin="round"/>
-<circle cx="55.3" cy="39.3" r="2.25" fill="#211813" stroke="#E9D9BE" stroke-width="1"/>
-<path d="M27 74.5h42" stroke="#D7BD91" stroke-opacity=".5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none" role="img" aria-label="Migraven raven emblem">
+<defs>
+ <linearGradient id="gold" x1="15" y1="14" x2="83" y2="82" gradientUnits="userSpaceOnUse"><stop stop-color="#F0E2C8"/><stop offset=".52" stop-color="#D7BD91"/><stop offset="1" stop-color="#A96F3D"/></linearGradient>
+ <linearGradient id="feather" x1="22" y1="22" x2="72" y2="76" gradientUnits="userSpaceOnUse"><stop stop-color="#F1EADF"/><stop offset="1" stop-color="#C58B4C"/></linearGradient>
+</defs>
+<path d="M48 5.5a42.5 42.5 0 1 1-39.9 57" stroke="url(#gold)" stroke-width="1.35" stroke-linecap="round" opacity=".72"/>
+<path d="M16 68.5c10.4-4.2 15.4-13.8 18-25.2 2.1-9.1 9-16.1 20.2-19.8-3.5 6.1-3.7 12-.7 17.4 7.2-7.1 16.8-10.8 29.5-10.6-8.1 5.4-12.4 12.2-12.8 20.3 5.4-1.2 10.4-.6 15.2 1.9-8.6 1.9-14.3 6.4-17.7 13.3-5.2 10.7-14.4 16.3-27.1 15.3 6.6-4.1 10-8.8 10.2-14.1-10.2 5.7-21.7 6.2-34.8 1.5Z" fill="url(#feather)" stroke="#F1EADF" stroke-opacity=".65" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="m70.2 44.1 18.1 3.3-16.5 6.8" fill="#C58B4C" stroke="#E9D9BE" stroke-width="1" stroke-linejoin="round"/>
+<path d="M29 59.5c8.6-1.5 15.7-5.6 21.2-12.4M31.7 67.2c8.8.5 16.5-1.8 22.9-6.8M41.2 74.3c7.5-1.2 13.2-4.2 17.2-9" stroke="#49362A" stroke-opacity=".75" stroke-width="1.3" stroke-linecap="round"/>
+<circle cx="60.1" cy="39.2" r="2.1" fill="#211813" stroke="#E9D9BE" stroke-width="1"/>
+<path d="M12.5 79.5h43" stroke="#D7BD91" stroke-opacity=".45" stroke-linecap="round"/>
 </svg>
