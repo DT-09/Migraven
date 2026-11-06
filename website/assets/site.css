@@ -232,3 +232,7 @@ body{font-family:var(--mono);font-size:13px;line-height:1.82}
 .site-footer{position:relative}
 .site-footer:before{content:"";display:block;height:1px;background:linear-gradient(90deg,transparent,rgba(215,189,145,.4),transparent)}
 @media(max-width:760px){.hero:before{height:430px}.section-head>div:after{margin-top:12px}}
+
+
+/* Heading weight consistency */
+.hero-copy h1,.page-hero h1,.section-head h2,.demo-teaser h2,.closing-inner h2,.page-hero h2,.dark-section h2,.command-section h2,.request-panel h2,.faq-section h2,.demo-toolbar h2,.results-head h2{font-family:var(--serif);font-weight:700}
