@@ -2,10 +2,12 @@
   "use strict";
   const toggle=document.querySelector(".menu-toggle"),nav=document.querySelector("#site-nav");
   if(toggle&&nav){
+    const currentPage=window.location.pathname.split("/").pop()||"index.html";
+    nav.querySelectorAll(".menu-link").forEach(link=>{if(link.dataset.page===currentPage)link.setAttribute("aria-current","page");});
     const setMenu=open=>{toggle.setAttribute("aria-expanded",String(open));nav.classList.toggle("open",open);const label=toggle.querySelector(".menu-toggle-label");if(label)label.textContent=open?"Close":"Explore";toggle.setAttribute("aria-label",open?"Close navigation menu":"Open navigation menu");};
     toggle.addEventListener("click",()=>setMenu(toggle.getAttribute("aria-expanded")!=="true"));
     nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenu(false)));
-    document.addEventListener("keydown",event=>{if(event.key==="Escape")setMenu(false);});
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"){setMenu(false);toggle.focus();}});
     document.addEventListener("click",event=>{if(!event.target.closest(".site-header"))setMenu(false);});
   }
   const revealTargets=document.querySelectorAll(".audience-card,.workflow-step,.benefit-grid article,.format-card,.deliverable-grid article,.commercial-grid article,.illustration-card,.method-steps article,.status-grid article,.evaluation-steps article");
