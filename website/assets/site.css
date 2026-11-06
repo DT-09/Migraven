@@ -43,3 +43,9 @@ body{font-family:var(--mono);font-size:17px;line-height:1.75}
 .illustration-card .eyebrow{display:block;margin-bottom:14px}
 @media(max-width:760px){.illustration-grid{grid-template-columns:1fr}.illustration-card{min-height:260px}}
 @media(prefers-reduced-motion:reduce){.illustration-card,.illustration-card svg{transition:none}}
+
+/* Final type scale */
+.hero-copy h1,.page-hero h1{font-size:32px}
+.section-head h2,.demo-teaser h2,.closing-inner h2,.page-hero h2{font-size:28px}
+.audience-card h3,.workflow-step h3,.benefit-grid h3,.commercial-grid h3,.format-card h3,.deliverable-grid h3,.method-steps h3,.status-grid h3,.evaluation-steps h3{font-size:24px}
+.site-nav a{font-size:14px}
