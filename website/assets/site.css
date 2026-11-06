@@ -213,3 +213,22 @@ body{font-family:var(--mono);font-size:13px;line-height:1.82}
 }
 @media(max-width:420px){.menu-links{grid-template-columns:1fr}.menu-link{min-height:48px}.menu-link-name{font-size:20px}.menu-topline{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.site-nav.open{animation:none}.menu-toggle,.menu-link,.menu-cta{transition:none}}
+
+
+/* Final brand rule: Syncopate belongs to the Migraven wordmark only */
+:root{--display:var(--serif)}
+.brand-word,.footer-brand .brand-word{font-family:'Syncopate',sans-serif}
+.menu-link[aria-current=page] .menu-link-index{color:var(--champagne)}
+.menu-link[aria-current=page] .menu-link-name{color:var(--champagne)}
+.hero{position:relative}
+.hero:before{content:"";position:absolute;z-index:-1;left:50%;top:0;width:min(900px,95vw);height:540px;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse at 70% 22%,rgba(197,139,76,.09),transparent 57%),radial-gradient(ellipse at 18% 70%,rgba(215,189,145,.045),transparent 55%)}
+.section-head{position:relative}
+.section-head>div{position:relative}
+.section-head>div:after{content:"";display:block;width:42px;height:1px;margin-top:17px;background:linear-gradient(90deg,var(--amber),transparent)}
+.section-head h2{max-width:720px}
+.illustration-section .section-head>div:after{background:linear-gradient(90deg,var(--champagne),transparent)}
+.button-primary{box-shadow:0 8px 24px rgba(197,139,76,.12)}
+.button-primary:hover{box-shadow:0 12px 30px rgba(197,139,76,.2)}
+.site-footer{position:relative}
+.site-footer:before{content:"";display:block;height:1px;background:linear-gradient(90deg,transparent,rgba(215,189,145,.4),transparent)}
+@media(max-width:760px){.hero:before{height:430px}.section-head>div:after{margin-top:12px}}
