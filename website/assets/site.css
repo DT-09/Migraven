@@ -104,3 +104,51 @@ body{font-family:var(--mono);font-size:18px;line-height:1.72}
  .footer-brand .brand-word{font-size:24px}
 }
 @media(prefers-reduced-motion:reduce){.visual-illustration,.visual-illustration svg,.hero-visual,.mini-report,.flow-card{transition:none!important}}
+
+
+/* MIGRAVEN / EDITORIAL SYSTEM — November 2026 */
+:root{--sans:'IBM Plex Mono',monospace;--mono:'IBM Plex Mono',monospace;--display:'Syncopate',sans-serif;--serif:'Cormorant Garamond',Georgia,serif}
+body{font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.85;letter-spacing:-.015em}
+p,li,label,input,textarea,select,button,.site-nav a,.footer-column a,.button,.hero-trust,.eyebrow,.footer-label,.footer-bottom,.hero-kicker,.workflow-rail,.audience-tag,.card-index,.format-meta,.spec-list span,.spec-list em,.status-tag,.evaluation-card-top,.evaluation-card-bottom,.workspace-label,.result-footnote{font-family:'IBM Plex Mono',monospace}
+h1,h2,h3,h4,h5,h6,.statement-inner p,.footer-note p,.audience-symbol,.spec-list b,.integrity-card h3,.faq-section summary{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;letter-spacing:-.025em}
+.hero-copy h1,.page-hero h1,.section-head h2,.demo-teaser h2,.closing-inner h2,.command-section h2,.dark-section h2,.request-panel h2,.faq-section h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;letter-spacing:-.035em;line-height:.98}
+.brand-word{font-family:'Syncopate',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em}
+.raven-watermark,.statement-seal{font-family:'Cormorant Garamond',Georgia,serif}
+.demo-teaser h2,.closing-inner h2{font-family:'Cormorant Garamond',Georgia,serif}
+.site-header{height:82px;isolation:isolate}
+.menu-toggle{display:flex;align-items:center;gap:15px;padding:12px 16px;border:1px solid rgba(215,189,145,.38);border-radius:999px;background:rgba(48,35,27,.52);color:var(--ivory);font:10px 'IBM Plex Mono',monospace;letter-spacing:.08em;cursor:pointer;transition:background .25s,border-color .25s}
+.menu-toggle:hover{background:rgba(197,139,76,.15);border-color:var(--champagne)}
+.menu-toggle-icon{display:grid;gap:5px;width:16px}
+.menu-toggle-icon i{display:block;height:1px;background:var(--champagne);transition:transform .25s}
+.menu-toggle[aria-expanded=true] .menu-toggle-icon i:first-child{transform:translateY(3px) rotate(45deg)}
+.menu-toggle[aria-expanded=true] .menu-toggle-icon i:last-child{transform:translateY(-3px) rotate(-45deg)}
+.site-nav{position:absolute;right:max(28px,calc((100vw - 1200px)/2));top:calc(100% + 10px);width:min(440px,calc(100vw - 36px));display:none;align-items:stretch;gap:0;padding:22px;border:1px solid rgba(215,189,145,.28);border-radius:18px;background:rgba(28,20,15,.97);box-shadow:0 24px 70px rgba(0,0,0,.45);backdrop-filter:blur(24px);color:var(--ivory)}
+.site-nav.open{display:grid;animation:menuIn .22s ease both}
+.menu-topline,.menu-bottom{display:flex;justify-content:space-between;align-items:center;gap:15px;color:#927e68;font:8px 'IBM Plex Mono',monospace;letter-spacing:.13em}
+.menu-topline{padding:2px 2px 17px;border-bottom:1px solid var(--line)}
+.menu-links{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;padding:8px 0}
+.menu-links a{padding:13px 3px;border-bottom:1px solid rgba(215,189,145,.1);font:600 21px/1.1 'Cormorant Garamond',Georgia,serif;color:#e9dfd2}
+.menu-links a:hover,.menu-links a[aria-current=page]{color:var(--champagne);transform:translateX(3px)}
+.menu-links a[aria-current=page]{text-decoration:none}
+.menu-bottom{padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.menu-bottom .nav-cta{font:9px 'IBM Plex Mono',monospace;padding:10px 13px}
+@keyframes menuIn{from{opacity:0;transform:translateY(-7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.illustration-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.illustration-card{position:relative;overflow:hidden;min-width:0;background:linear-gradient(150deg,rgba(255,255,255,.045),rgba(255,255,255,.008));transition:transform .35s,border-color .35s,background .35s}
+.illustration-card:hover{transform:translateY(-7px);border-color:rgba(215,189,145,.55);background:linear-gradient(150deg,rgba(197,139,76,.13),rgba(255,255,255,.015))}
+.illustration-card svg{width:100%;height:auto;display:block;margin:18px 0 13px;overflow:visible}
+.illustration-card .trace-line{stroke-dasharray:4 5;animation:traceFlow 2.6s linear infinite}
+@keyframes traceFlow{to{stroke-dashoffset:-36}}
+.illustration-card h3{font:700 22px/1.05 'Cormorant Garamond',Georgia,serif}
+.illustration-card p{font:10px/1.8 'IBM Plex Mono',monospace}
+.hero-visual,.mini-report,.evaluation-card,.request-panel,.command-card,.integrity-card,.audience-card,.format-card,.deliverable-grid article,.status-grid article,.commercial-grid article{box-shadow:0 20px 55px rgba(0,0,0,.12)}
+.hero-visual{border-radius:28px}
+.button,.nav-cta{font-family:'IBM Plex Mono',monospace}
+.button{letter-spacing:0;font-size:10px}
+.hero-lede,.section-head>p,.page-hero>p,.demo-teaser p,.closing-inner p,.audience-card p,.workflow-step p,.benefit-grid p,.commercial-grid p,.format-card p,.deliverable-grid p,.method-steps p,.status-grid p,.evaluation-steps p,.request-panel>div>p,.faq-section details p{font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9}
+.footer-brand .brand-word{font-family:'Syncopate',sans-serif}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
+.reveal.is-visible{opacity:1;transform:translateY(0)}
+@media(max-width:900px){.illustration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.site-nav{right:18px}}
+@media(max-width:620px){.site-header{height:70px;padding-inline:18px}.brand-caption,.brand-divider{display:none}.brand img{width:30px;height:30px}.menu-toggle{padding:10px 13px}.site-nav{right:12px;top:calc(100% + 8px);padding:18px}.menu-links{grid-template-columns:1fr 1fr}.menu-links a{font-size:19px}.menu-bottom{align-items:flex-start;flex-direction:column}.illustration-grid{grid-template-columns:1fr}.hero-copy h1,.page-hero h1{font-size:clamp(43px,13vw,62px)}.section-head h2{font-size:42px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
