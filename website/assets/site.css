@@ -22,3 +22,12 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .65s ease,transform .65s ease}.reveal.is-visible{opacity:1;transform:translateY(0)}
+
+/* Migraven typography refresh */
+:root{--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Mono',monospace}
+body{font-family:var(--mono);font-size:17px;line-height:1.75}
+.brand-word{font:700 35px/1 'Syncopate',sans-serif;text-transform:lowercase;letter-spacing:-.045em}
+.site-nav{font-family:var(--mono);font-size:14px}
+.hero-copy h1,.page-hero h1,.section-head h2,.demo-teaser h2,.closing-inner h2{font:600 32px/1.16 'Cormorant Garamond',Georgia,serif}
+.audience-card h3,.workflow-step h3,.benefit-grid h3,.commercial-grid h3,.format-card h3,.deliverable-grid h3,.method-steps h3,.status-grid h3,.evaluation-steps h3{font:600 28px/1.12 'Cormorant Garamond',Georgia,serif}
+.button{font:500 20px/1.25 var(--mono)}
