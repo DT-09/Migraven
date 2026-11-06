@@ -1,12 +1,18 @@
 (() => {
   "use strict";
   const toggle=document.querySelector(".menu-toggle"),nav=document.querySelector("#site-nav");
-  if(toggle&&nav)toggle.addEventListener("click",()=>{const open=toggle.getAttribute("aria-expanded")!=="true";toggle.setAttribute("aria-expanded",String(open));nav.classList.toggle("open",open);toggle.textContent=open?"Close":"Menu";});
+  if(toggle&&nav){
+    const setMenu=open=>{toggle.setAttribute("aria-expanded",String(open));nav.classList.toggle("open",open);toggle.textContent=open?"Close":"Menu";toggle.setAttribute("aria-label",open?"Close navigation menu":"Open navigation menu");};
+    toggle.addEventListener("click",()=>setMenu(toggle.getAttribute("aria-expanded")!=="true"));
+    nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>setMenu(false)));
+    document.addEventListener("keydown",event=>{if(event.key==="Escape")setMenu(false);});
+    document.addEventListener("click",event=>{if(!event.target.closest(".site-header"))setMenu(false);});
+  }
   const revealTargets=document.querySelectorAll(".audience-card,.workflow-step,.benefit-grid article,.format-card,.deliverable-grid article,.commercial-grid article");
   if("IntersectionObserver" in window&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}}),{threshold:.12});revealTargets.forEach(el=>{el.classList.add("reveal");observer.observe(el);});}
   document.querySelectorAll("[data-copy]").forEach(button=>button.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(button.dataset.copy);button.textContent="Copied";}catch{button.textContent="Copy unavailable";}}));
   const form=document.querySelector("[data-request-form]");
-  if(form)form.addEventListener("submit",event=>{event.preventDefault();const data=new FormData(form);const subject="Migraven evaluation enquiry";const body=["Work email: "+data.get("email"),"Organisation: "+data.get("company"),"Migration context: "+data.get("context"),"","I would like to discuss a scoped Migraven evaluation."].join("\n");const feedback=form.querySelector("[data-form-feedback]");feedback.textContent="Your email draft is ready. Add the agreed recipient before sending.";window.location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);});
+  if(form)form.addEventListener("submit",event=>{event.preventDefault();const data=new FormData(form);const subject="Migraven evaluation enquiry";const body=["Work email: "+data.get("email"),"Organisation: "+data.get("company"),"Migration context: "+data.get("context"),"","I would like to discuss a scoped Migraven evaluation."].join("\n");const feedback=form.querySelector("[data-form-feedback]");feedback.textContent="Opening your email draft addressed to dhairytopia@gmail.com. Review it before sending.";window.location.href="mailto:dhairytopia@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);});
   const root=document.querySelector("[data-demo]");if(!root)return;
   const $=selector=>root.querySelector(selector);
   const sampleSource="record_id,account_name,account_status,credit_limit\nAC-1042,Northstar Parts,ACTIVE,25000\nAC-1043,Meridian Works,PAUSED,18000\nAC-1044,Atlas Components,ACTIVE,42000\nAC-1045,Redwood Industrial,ACTIVE,12000\nAC-1046,Solace Systems,REVIEW,30000\nAC-1048,Westline Supply,ACTIVE,16000";
