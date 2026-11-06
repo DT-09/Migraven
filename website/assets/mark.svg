@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Migraven raven mark">
-  <path d="M7.5 27.2C12.3 14.7 24.5 7.1 37.1 9.2c7.2 1.2 12.2 5.4 15 11.1l9.4 4.5-10.8 4.1c-2.4 10.8-11.7 18-24.1 18.4l-9.4 9.2 1.5-13.4C11.4 39.1 7.2 33.7 7.5 27.2Z" fill="#D9BD8E"/>
-  <path d="M17.2 27.4c6.9-7.1 15.2-10.2 24.8-9.1-3.7 2.4-6.6 5.4-8.6 9.1 4.5-2.2 9.1-3.1 13.9-2.6-4.2 3.1-7.1 6.6-8.8 10.5-4.9 4.1-10.6 6.2-17.1 6.2l-5.5 5.3 1-9.5c-3.3-2.9-4.7-6.2-4.2-9.9l4.5 0Z" fill="#171411" opacity=".82"/>
-  <circle cx="43.2" cy="21.7" r="1.8" fill="#11100F"/>
-  <path d="M18.7 52.2 26 45.5" stroke="#C89557" stroke-width="2" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Migraven raven and migration mark">
+  <path d="M9 42.5c7.2-1.1 12.4-4.2 16-9.2 4.2-5.9 5.4-13.2 14.8-18.1-1.4 6.5-4.2 11.1-8.4 14.1 6.5-2.5 13.5-2.5 21.1.1l-9.2 4.2c-2.5 8.4-9.1 14-19.7 15.2-4.2.5-8.7-.2-13.4-2.1" stroke="#D7BD91" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M15 39.4c7.1-2.2 12.2-6.3 15.3-12.3M19.3 46.7l-4.6 7.1 9.1-4.4M36.2 31.2l8.4 1.2" stroke="#B99464" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="44.2" cy="24.8" r="1.45" fill="#D7BD91"/>
+  <path d="M5.5 57.5h53" stroke="#D7BD91" stroke-opacity=".16" stroke-width="1"/>
 </svg>
