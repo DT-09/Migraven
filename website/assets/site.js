@@ -8,7 +8,7 @@
     document.addEventListener("keydown",event=>{if(event.key==="Escape")setMenu(false);});
     document.addEventListener("click",event=>{if(!event.target.closest(".site-header"))setMenu(false);});
   }
-  const revealTargets=document.querySelectorAll(".audience-card,.workflow-step,.benefit-grid article,.format-card,.deliverable-grid article,.commercial-grid article");
+  const revealTargets=document.querySelectorAll(".audience-card,.workflow-step,.benefit-grid article,.format-card,.deliverable-grid article,.commercial-grid article,.illustration-card,.method-steps article,.status-grid article,.evaluation-steps article");
   if("IntersectionObserver" in window&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("is-visible");observer.unobserve(entry.target);}}),{threshold:.12});revealTargets.forEach(el=>{el.classList.add("reveal");observer.observe(el);});}
   document.querySelectorAll("[data-copy]").forEach(button=>button.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(button.dataset.copy);button.textContent="Copied";}catch{button.textContent="Copy unavailable";}}));
   const form=document.querySelector("[data-request-form]");
