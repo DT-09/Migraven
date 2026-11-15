@@ -115,7 +115,8 @@ int migraven_compare(const MigravenTable *left, const MigravenTable *right,
         set_error(error, error_size, "Invalid comparison arguments");
         return 0;
     }
-    memset(out, 0, sizeof(*out));
+    /* The caller must pass a zero-initialized or previously valid report. */
+    migraven_report_free(out);
     lk = column_index(left, key_name);
     lv = column_index(left, value_name);
     rk = column_index(right, key_name);

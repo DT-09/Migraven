@@ -167,6 +167,7 @@ int migraven_csv_read(const char *path, MigravenTable *out, char *error, size_t 
             goto fail;
         }
     }
+    row_free(&row);
     free(field);
     free(buf);
     return 1;

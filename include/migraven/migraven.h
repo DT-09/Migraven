@@ -12,6 +12,7 @@ typedef struct { MigravenFinding *findings; size_t finding_count; size_t finding
 int migraven_csv_read(const char *path, MigravenTable *out, char *error, size_t error_size);
 int migraven_jsonl_read(const char *path, MigravenTable *out, char *error, size_t error_size);
 void migraven_table_free(MigravenTable *table);
+/* out must be zero-initialized or a previously valid report; prior contents are freed. */
 int migraven_compare(const MigravenTable *left, const MigravenTable *right, const char *key_column, const char *value_column, MigravenReport *out, char *error, size_t error_size);
 void migraven_report_free(MigravenReport *report);
 const char *migraven_status_name(MigravenStatus status);
